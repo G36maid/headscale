@@ -1,7 +1,7 @@
 # Builder image
 FROM docker.io/golang:1.20-bullseye AS build
 ARG VERSION=dev
-ENV GOPATH /go
+ENV GOPATH=/go
 WORKDIR /go/src/headscale
 
 COPY go.mod go.sum /go/src/headscale/
@@ -22,7 +22,7 @@ RUN apt-get update \
     && apt-get clean
 
 COPY --from=build /go/bin/headscale /bin/headscale
-ENV TZ UTC
+ENV TZ=UTC
 
 RUN mkdir -p /var/run/headscale
 
