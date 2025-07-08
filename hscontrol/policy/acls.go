@@ -109,6 +109,32 @@ func LoadACLPolicyFromPath(path string) (*ACLPolicy, error) {
 	return LoadACLPolicyFromBytes(policyBytes)
 }
 
+// LoadACLPolicyFromPath loads the ACL policy from the specify path, and generates the ACL rules.
+func LoadACLPolicyFromPathAndUpdate(path string) (*ACLPolicy, error) {
+	log.Debug().
+		Str("func", "LoadACLPolicy").
+		Str("path", path).
+		Msg("Loading ACL policy from path and update")
+
+	policyFile, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer policyFile.Close()
+
+	policyBytes, err := io.ReadAll(policyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debug().
+		Str("path", path).
+		Bytes("file", policyBytes).
+		Msg("Loading ACLs")
+
+	return LoadACLPolicyFromBytesAndUpdate(policyBytes)
+}
+
 func LoadACLPolicyFromBytes(acl []byte) (*ACLPolicy, error) {
 	var policy ACLPolicy
 
@@ -130,6 +156,55 @@ func LoadACLPolicyFromBytes(acl []byte) (*ACLPolicy, error) {
 
 	return &policy, nil
 }
+
+func LoadACLPolicyFromBytesAndUpdate(acl []byte) (*ACLPolicy, error) {
+	policy, err := LoadACLPolicyFromBytes(acl)
+	if err != nil {
+		return nil, err
+	}
+	return policy, nil
+}
+
+// func UpdateACLRules(updateEpochToDB bool) error {
+// 	// list nodes
+// 	// nodes, err := ListMachines()
+// 	// if err != nil {
+// 	// 	return err
+// 	// }
+
+// 	//check policy
+// 	if aclPolicy == nil {
+// 		return errEmptyPolicy
+// 	}
+
+// 	rules, err := h.aclPolicy.generateFilterRules(machines, h.cfg.OIDC.StripEmaildomain)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	log.Trace().Interface("ACL", rules).Msg("ACL rules generated")
+// 	h.aclRules = rules
+
+// 	if featureEnableSSH() {
+// 		sshRules, err := h.generateSSHRules()
+// 		if err != nil {
+// 			return err
+// 		}
+// 		log.Trace().Interface("SSH", sshRules).Msg("SSH rules generated")
+// 		if h.sshPolicy == nil {
+// 			h.sshPolicy = &tailcfg.SSHPolicy{}
+// 		}
+// 		h.sshPolicy.Rules = sshRules
+// 	} else if h.aclPolicy != nil && len(h.aclPolicy.SSHs) > 0 {
+// 		log.Info().Msg("SSH ACLs has been defined, but HEADSCALE_EXPERIMENTAL_FEATURE_SSH is not enabled, this is a unstable feature, check docs before activating")
+// 	}
+
+// 	if updateEpochToDB {
+// 		h.setLastStateChangeToNow()
+// 	}
+
+// 	return nil
+// }
 
 func GenerateFilterAndSSHRulesForTests(
 	policy *ACLPolicy,
