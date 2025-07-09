@@ -3,10 +3,12 @@ package hscontrol
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -716,9 +718,9 @@ func (api headscaleV1APIServer) SetPolicy(
 	_ context.Context,
 	request *v1.SetPolicyRequest,
 ) (*v1.SetPolicyResponse, error) {
-	if api.h.cfg.Policy.Mode != types.PolicyModeDB {
-		return nil, types.ErrPolicyUpdateIsDisabled
-	}
+	// if api.h.cfg.Policy.Mode != types.PolicyModeDB {
+	// 	return nil, types.ErrPolicyUpdateIsDisabled
+	// }
 
 	p := request.GetPolicy()
 
@@ -749,25 +751,159 @@ func (api headscaleV1APIServer) SetPolicy(
 		}
 	}
 
-	updated, err := api.h.db.SetPolicy(p)
+	switch api.h.cfg.Policy.Mode {
+	case types.PolicyModeDB:
+		updated, err := api.h.db.SetPolicy(p)
+		if err != nil {
+			return nil, err
+		}
+
+		api.h.ACLPolicy = pol
+
+		ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
+		api.h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
+			Type: types.StateFullUpdate,
+		})
+
+		response := &v1.SetPolicyResponse{
+			Policy:    updated.Data,
+			UpdatedAt: timestamppb.New(updated.UpdatedAt),
+		}
+
+		return response, nil
+	case types.PolicyModeFile: //experimental
+		// absPath := util.AbsolutePathFromConfigPath(api.h.cfg.Policy.Path)
+
+		// // Write the policy to file
+		// if err := os.WriteFile(absPath, []byte(p), 0644); err != nil {
+		// 	return nil, fmt.Errorf("writing policy to file %q: %w", absPath, err)
+		// }
+
+		// // Trigger full reload cycle (like SIGHUP does)
+		// if err := api.h.loadACLPolicy(); err != nil {
+		// 	return nil, fmt.Errorf("failed to reload ACL policy after file write: %w", err)
+		// }
+
+		// // Notify nodes of the change
+		// if api.h.ACLPolicy != nil {
+		// 	ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
+		// 	api.h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
+		// 		Type: types.StateFullUpdate,
+		// 	})
+		// }
+		if err := updatePendingACLConfig(api.h, pol); err != nil {
+			return nil, fmt.Errorf("writing policy to pending ACL: %w", err)
+		}
+
+		if _, err := reloadPendingACLConfig(api.h); err != nil {
+			return nil, fmt.Errorf("reloading pending ACL config: %w", err)
+		}
+
+		ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
+		api.h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
+			Type: types.StateFullUpdate,
+		})
+
+		return &v1.SetPolicyResponse{
+			Policy:    p,
+			UpdatedAt: timestamppb.Now(),
+		}, nil
+
+	default:
+		return nil, fmt.Errorf("unsupported policy mode: %s", api.h.cfg.Policy.Mode)
+	}
+}
+
+// --- ACL helper functions
+func copyACLConfig(dst, src string) error {
+	dstFile, err := os.Create(dst)
 	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	_, err = io.Copy(dstFile, srcFile)
+
+	return err
+}
+
+func getPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
+	// Store the pending ACL config within the directory of ACL config with
+	// the file name .acl.json
+	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
+	if _, err := os.Stat(pendingPolicyPath); errors.Is(err, os.ErrNotExist) {
+		err = copyACLConfig(pendingPolicyPath, inUsedPolicyPath)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return policy.LoadACLPolicyFromPath(pendingPolicyPath)
+}
+
+func updatePendingACLConfig(h *Headscale, policy *policy.ACLPolicy) error {
+	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
+	pendingFile, err := os.Create(pendingPolicyPath)
+	if err != nil {
+		return err
+	}
+	defer pendingFile.Close()
+
+	js := json.NewEncoder(pendingFile)
+	return js.Encode(*policy)
+}
+
+func reloadPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
+	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
+	if _, err := os.Stat(pendingPolicyPath); errors.Is(err, os.ErrNotExist) {
 		return nil, err
 	}
 
-	api.h.ACLPolicy = pol
-
-	ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
-	api.h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
-		Type: types.StateFullUpdate,
-	})
-
-	response := &v1.SetPolicyResponse{
-		Policy:    updated.Data,
-		UpdatedAt: timestamppb.New(updated.UpdatedAt),
+	if err := os.Rename(pendingPolicyPath, inUsedPolicyPath); err != nil {
+		return nil, err
 	}
 
-	return response, nil
+	return policy.LoadACLPolicyFromPath(inUsedPolicyPath)
 }
+
+func discardPendingACLConfig(h *Headscale) error {
+	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
+
+	return os.Remove(pendingPolicyPath)
+}
+
+// --- End ACL helpers functions
+
+// --- ACL APIs ---
+func (api headscaleV1APIServer) ACLCtrl(
+	ctx context.Context,
+	request *v1.ACLCtrlRequest,
+) (*v1.ACLCtrlResponse, error) {
+	action := request.GetAction()
+
+	switch action {
+	case "reload":
+		reloadPendingACLConfig(api.h)
+	case "discard":
+		discardPendingACLConfig(api.h)
+	default:
+		return nil, status.Error(codes.InvalidArgument, "Not supported action")
+	}
+
+	return &v1.ACLCtrlResponse{}, nil
+}
+
+// --- End ACL APIs ---
 
 // The following service calls are for testing and debugging
 func (api headscaleV1APIServer) DebugCreateNode(
