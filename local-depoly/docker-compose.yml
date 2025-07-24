@@ -1,0 +1,127 @@
+services:
+  hs-db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_DB: headscale_db
+      POSTGRES_USER: headscale_user
+      POSTGRES_PASSWORD: 12345678 # <--- IMPORTANT: CHANGE THIS TO A SECURE PASSWORD!
+    volumes:
+      - headscale_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready",
+          "-U",
+          "headscale_user",
+          "-d",
+          "headscale_db",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - headscale-net
+
+  hs-0:
+    image: headscale-0.23-base:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: headscale_db
+      POSTGRES_USER: headscale_user
+      POSTGRES_PASSWORD: 12345678 # <--- IMPORTANT: MUST MATCH THE DB PASSWORD ABOVE!
+      POSTGRES_HOST: hs-db
+      POSTGRES_PORT: 5432
+      HEADSCALE_SERVER_URL: http://hs-0:8080 # URL for clients connecting to this instance
+    volumes:
+      - ./headscale_config:/etc/headscale # Shared config
+      - headscale_data:/var/lib/headscale # Shared data
+    ports:
+      - "0.0.0.0:8080:8080" # Client port for hs-0
+      - "0.0.0.0:9090:9090" # Metrics port
+      #- "50051:8080" # gRPC port for control panel testing
+    command: ["headscale", "serve"]
+    depends_on:
+      hs-db:
+        condition: service_healthy
+    networks:
+      - headscale-net
+
+  hs-1:
+    image: headscale-0.23-base:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: headscale_db
+      POSTGRES_USER: headscale_user
+      POSTGRES_PASSWORD: 12345678 # <--- IMPORTANT: MUST MATCH THE DB PASSWORD ABOVE!
+      POSTGRES_HOST: hs-db
+      POSTGRES_PORT: 5432
+      HEADSCALE_SERVER_URL: http://hs-1:8080 # URL for clients connecting to this instance
+    volumes:
+      - ./headscale_config:/etc/headscale # Shared config
+      - headscale_data:/var/lib/headscale # Shared data
+    ports:
+      - "0.0.0.0:8081:8080" # Client port for hs-0
+      - "0.0.0.0:9091:9090" # Metrics port
+    command: ["headscale", "serve"]
+    depends_on:
+      hs-db:
+        condition: service_healthy
+    networks:
+      - headscale-net
+
+  ts-client-0:
+    image: tailscale/tailscale:latest
+    hostname: client-0
+    #restart: unless-stopped
+    extra_hosts:
+      - "localhost:host-gateway"
+    volumes:
+      - ts-client-0-state:/var/lib/tailscale
+      - ./tailscale_script:/etc/tailscale/script
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TS_AUTHKEY=9b5e2eea5513491f3ad883318af5bd475e6c2f4ae8618287 # myfirstuser
+      - HS_HOSTNAME=hs-0
+    command: ["//bin/sh", "/etc/tailscale/script/run.sh"]
+    depends_on:
+      - hs-0
+    networks:
+      - headscale-net
+
+  ts-client-1:
+    image: tailscale/tailscale:latest
+    hostname: client-1
+    #restart: unless-stopped
+    extra_hosts:
+      - "localhost:host-gateway"
+    volumes:
+      - ts-client-1-state:/var/lib/tailscale
+      - ./tailscale_script:/etc/tailscale/script
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TS_AUTHKEY=4551433483e2ea2b4fda9157c52d58e1862052e30f1c0970 # myfirstuser
+      - HS_HOSTNAME=hs-1
+    command: ["/bin/sh", "/etc/tailscale/script/run.sh"]
+    depends_on:
+      - hs-1
+    networks:
+      - headscale-net
+
+volumes:
+  headscale_db_data:
+  headscale_data:
+  ts-client-0-state:
+  ts-client-1-state:
+
+networks:
+  headscale-net:
+    driver: bridge
