@@ -27,6 +27,13 @@ func init() {
 const prometheusNamespace = "headscale"
 
 var (
+	// This is a high cardinality metric (user x node), we might want to make this
+	// configurable/opt-in in the future.
+	lastStateUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: prometheusNamespace,
+		Name:      "last_update_seconds",
+		Help:      "Time stamp in unix time when a machine or headscale was updated",
+	}, []string{"user", "node"})
 	mapResponseSent = promauto.NewCounterVec(prometheus.CounterOpts{
 		Namespace: prometheusNamespace,
 		Name:      "mapresponse_sent_total",

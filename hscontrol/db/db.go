@@ -21,6 +21,14 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+// const (
+// 	dbVersion = "1"
+
+//	errValueNotFound     = Error("not found")
+//	ErrCannotParsePrefix = Error("cannot parse prefix") )
+
+var errValueNotFound = errors.New("not found")
+var ErrCannotParsePrefix = errors.New("cannot parse prefix")
 var errDatabaseNotSupported = errors.New("database type not supported")
 
 // KV is a key-value store in a psql table. For future use...
@@ -538,6 +546,38 @@ func openDB(cfg types.DatabaseConfig) (*gorm.DB, error) {
 		cfg.Type,
 		errDatabaseNotSupported,
 	)
+}
+
+// getValue returns the value for the given key in KV.
+func (hsdb *HSDatabase) GetValue(key string) (string, error) {
+	var row KV
+	if result := hsdb.DB.First(&row, "key = ?", key); errors.Is(
+		result.Error,
+		gorm.ErrRecordNotFound,
+	) {
+		return "", errValueNotFound
+	}
+
+	return row.Value, nil
+}
+
+// setValue sets value for the given key in KV.
+func (hsdb *HSDatabase) SetValue(key string, value string) error {
+	keyValue := KV{
+		Key:   key,
+		Value: value,
+	}
+
+	if _, err := hsdb.GetValue(key); err == nil {
+		hsdb.DB.Model(&keyValue).Where("key = ?", key).Update("value", value)
+		return nil
+	}
+
+	if err := hsdb.DB.Create(keyValue).Error; err != nil {
+		return fmt.Errorf("failed to create key value pair in the database: %w", err)
+	}
+
+	return nil
 }
 
 func runMigrations(cfg types.DatabaseConfig, dbConn *gorm.DB, migrations *gormigrate.Gormigrate) error {

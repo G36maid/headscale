@@ -210,6 +210,8 @@ func (m *mapSession) serveLongPoll() {
 			m.pollFailoverRoutes("node closing connection", m.node)
 		}
 
+		m.h.setLastStateChangeToNow()
+
 		m.afterServeLongPoll()
 		m.infof("node has disconnected, mapSession: %p, chan: %p", m, m.ch)
 	}()

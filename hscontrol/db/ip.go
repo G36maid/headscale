@@ -137,7 +137,7 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 	// The transaction provides a cluster-wide lock by ensuring atomicity
 	// of the IP allocation process.
 	err = db.Write(func(tx *gorm.DB) error {
-		// Step 3.1: Sync - Get all current IPs from DB
+		// Get all current IPs from DB
 		var v4s, v6s []sql.NullString
 		if err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error; err != nil {
 			return fmt.Errorf("plucking IPv4 addresses: %w", err)
@@ -146,7 +146,7 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 			return fmt.Errorf("plucking IPv6 addresses: %w", err)
 		}
 
-		// Step 3.2: Build a fresh, up-to-date IP set
+		// Build a fresh, up-to-date IP set
 		var currentUsedIPs netipx.IPSetBuilder
 
 		// Add network and broadcast addrs to used pool so they
@@ -178,7 +178,7 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 			return fmt.Errorf("building current IP set: %w", err)
 		}
 
-		// Step 3.3: Allocate - Find the next available IP
+		// Find the next available IP
 		if i.prefix4 != nil {
 			candidate, err := i.findNextAvailableIPFromSet(i.prev4, i.prefix4, set, i.strategy)
 			if err != nil {
