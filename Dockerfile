@@ -1,6 +1,6 @@
 FROM docker.io/golang:1.23-bookworm
 ARG VERSION=dev
-ENV GOPATH /go
+ENV GOPATH=/go
 WORKDIR /go/src/headscale
 
 RUN apt-get update \
