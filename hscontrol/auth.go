@@ -338,6 +338,8 @@ func (h *Headscale) handleAuthKey(
 			}
 		}
 
+		h.setLastStateChangeToNow()
+
 		ctx := types.NotifyCtx(context.Background(), "handle-authkey", "na")
 		h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{Type: types.StatePeerChanged, ChangeNodes: []types.NodeID{node.ID}})
 	} else {
@@ -355,7 +357,7 @@ func (h *Headscale) handleAuthKey(
 			ForcedTags:     pak.Proto().GetAclTags(),
 		}
 
-		ipv4, ipv6, err := h.ipAlloc.Next()
+		ipv4, ipv6, err := h.ipAlloc.Next(h.db)
 		if err != nil {
 			log.Error().
 				Caller().
@@ -398,6 +400,8 @@ func (h *Headscale) handleAuthKey(
 
 		return
 	}
+
+	h.setLastStateChangeToNow()
 
 	resp.MachineAuthorized = true
 	resp.User = *pak.User.TailscaleUser()

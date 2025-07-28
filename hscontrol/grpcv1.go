@@ -200,7 +200,7 @@ func (api headscaleV1APIServer) RegisterNode(
 		return nil, err
 	}
 
-	ipv4, ipv6, err := api.h.ipAlloc.Next()
+	ipv4, ipv6, err := api.h.ipAlloc.Next(api.h.db)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +219,8 @@ func (api headscaleV1APIServer) RegisterNode(
 	if err != nil {
 		return nil, err
 	}
+
+	api.h.setLastStateChangeToNow()
 
 	return &v1.RegisterNodeResponse{Node: node.Proto()}, nil
 }
@@ -266,6 +268,8 @@ func (api headscaleV1APIServer) SetTags(
 		}, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	api.h.setLastStateChangeToNow()
+
 	ctx = types.NotifyCtx(ctx, "cli-settags", node.Hostname)
 	api.h.nodeNotifier.NotifyWithIgnore(ctx, types.StateUpdate{
 		Type:        types.StatePeerChanged,
@@ -311,6 +315,8 @@ func (api headscaleV1APIServer) DeleteNode(
 		return nil, err
 	}
 
+	api.h.setLastStateChangeToNow()
+
 	ctx = types.NotifyCtx(ctx, "cli-deletenode", node.Hostname)
 	api.h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
 		Type:    types.StatePeerRemoved,
@@ -345,6 +351,8 @@ func (api headscaleV1APIServer) ExpireNode(
 	if err != nil {
 		return nil, err
 	}
+
+	api.h.setLastStateChangeToNow()
 
 	ctx = types.NotifyCtx(ctx, "cli-expirenode-self", node.Hostname)
 	api.h.nodeNotifier.NotifyByNodeID(
@@ -385,6 +393,8 @@ func (api headscaleV1APIServer) RenameNode(
 	if err != nil {
 		return nil, err
 	}
+
+	api.h.setLastStateChangeToNow()
 
 	ctx = types.NotifyCtx(ctx, "cli-renamenode", node.Hostname)
 	api.h.nodeNotifier.NotifyWithIgnore(ctx, types.StateUpdate{
@@ -474,6 +484,8 @@ func (api headscaleV1APIServer) MoveNode(
 		return nil, err
 	}
 
+	api.h.setLastStateChangeToNow()
+
 	return &v1.MoveNodeResponse{Node: node.Proto()}, nil
 }
 
@@ -491,6 +503,8 @@ func (api headscaleV1APIServer) BackfillNodeIPs(
 	if err != nil {
 		return nil, err
 	}
+
+	api.h.setLastStateChangeToNow()
 
 	return &v1.BackfillNodeIPsResponse{Changes: changes}, nil
 }
@@ -755,6 +769,8 @@ func (api headscaleV1APIServer) SetPolicy(
 	}
 
 	api.h.ACLPolicy = pol
+
+	api.h.setLastStateChangeToNow()
 
 	ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
 	api.h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
