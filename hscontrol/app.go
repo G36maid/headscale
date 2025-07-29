@@ -248,7 +248,10 @@ func (h *Headscale) expireExpiredNodes(ctx context.Context, every time.Duration)
 			}
 
 			if changed {
+
 				log.Trace().Interface("nodes", update.ChangePatches).Msgf("expiring nodes")
+
+				h.setLastStateChangeToNow()
 
 				ctx := types.NotifyCtx(context.Background(), "expire-expired", "na")
 				h.nodeNotifier.NotifyAll(ctx, update)
@@ -852,6 +855,27 @@ func (h *Headscale) Serve() error {
 		return nil
 	})
 
+	syncLastStateChangeTicker := time.NewTicker(10 * time.Second)
+	// checkLastACLModifyTicker := time.NewTicker(1 * time.Minute)
+	checkLastACLModifyTicker := time.NewTicker(10 * time.Second)
+	errorGroup.Go(func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return nil
+			case <-syncLastStateChangeTicker.C:
+				h.syncLastStateChangeFromDB()
+			case <-checkLastACLModifyTicker.C: //todo
+				h.loadACLPolicy()
+				// if h.checkACLModified() {
+				// log.Info().
+				// 	Msg("ACL config modified after last update, reload ACL config")
+				// h.ReloadACL()
+				// }
+			}
+		}
+	})
+
 	return errorGroup.Wait()
 }
 
@@ -950,11 +974,26 @@ func (h *Headscale) syncLastStateChangeFromDB() {
 			Time("dbLastUpdate", dbLastUpdate).
 			Msg("syncLastStateChangeFromDB")
 		h.lastStateChange.Store("_sync_last_update_epoch", dbLastUpdate)
+
 		/* todo
-		h.UpdateACLRules(false) //trigger ACL reload and call setLastStateChangeToNow()
-		h.updatePeersCache() //Update
-		h.updateRoutesCache() //Update
+		h.UpdateACLRules() //trigger ACL reload
+		h.updatePeersCache() // current no cache
+		h.updateRoutesCache() // current no cache
+		// update ip table
+		// update online nodes
+		// generate new routes and update
+		// nodify all clients
 		*/
+
+		//ACL policy update
+		h.loadACLPolicy()
+
+		ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
+		h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
+			Type: types.StateFullUpdate,
+		})
+
+		// generate new routes and update
 	}
 }
 

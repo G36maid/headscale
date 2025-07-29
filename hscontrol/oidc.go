@@ -626,6 +626,8 @@ func (h *Headscale) registerNodeForOIDCCallback(
 			return err
 		}
 
+		h.setLastStateChangeToNow()
+
 		return nil
 	}); err != nil {
 		util.LogErr(err, "could not register node")
