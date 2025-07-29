@@ -27,10 +27,6 @@ type IPAllocator struct {
 	prefix4 *netip.Prefix
 	prefix6 *netip.Prefix
 
-	// Previous IPs handed out
-	prev4 netip.Addr
-	prev6 netip.Addr
-
 	// strategy used for handing out IP addresses.
 	strategy types.IPAllocationStrategy
 
@@ -86,19 +82,12 @@ func NewIPAllocator(
 		network4, broadcast4 := util.GetIPPrefixEndpoints(*prefix4)
 		ips.Add(network4)
 		ips.Add(broadcast4)
-
-		// Use network as starting point, it will be used to call .Next()
-		// TODO(kradalby): Could potentially take all the IPs loaded from
-		// the database into account to start at a more "educated" location.
-		ret.prev4 = network4
 	}
 
 	if prefix6 != nil {
 		network6, broadcast6 := util.GetIPPrefixEndpoints(*prefix6)
 		ips.Add(network6)
 		ips.Add(broadcast6)
-
-		ret.prev6 = network6
 	}
 
 	// Fetch all the IP Addresses currently handed out from the Database
@@ -128,28 +117,93 @@ func NewIPAllocator(
 	return &ret, nil
 }
 
-func (i *IPAllocator) Next() (*netip.Addr, *netip.Addr, error) {
-	i.mu.Lock()
-	defer i.mu.Unlock()
+func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
+	if db == nil {
+		i.mu.Lock()
+		defer i.mu.Unlock()
 
-	var err error
-	var ret4 *netip.Addr
-	var ret6 *netip.Addr
+		var err error
+		var ret4 *netip.Addr
+		var ret6 *netip.Addr
 
-	if i.prefix4 != nil {
-		ret4, err = i.next(i.prev4, i.prefix4)
-		if err != nil {
-			return nil, nil, fmt.Errorf("allocating IPv4 address: %w", err)
+		if i.prefix4 != nil {
+			ret4, err = i.next(i.prefix4, i.usedIPs)
+			if err != nil {
+				return nil, nil, fmt.Errorf("allocating IPv4 address: %w", err)
+			}
 		}
-		i.prev4 = *ret4
+
+		if i.prefix6 != nil {
+			ret6, err = i.next(i.prefix6, i.usedIPs)
+			if err != nil {
+				return nil, nil, fmt.Errorf("allocating IPv6 address: %w", err)
+			}
+		}
+
+		return ret4, ret6, nil
 	}
 
-	if i.prefix6 != nil {
-		ret6, err = i.next(i.prev6, i.prefix6)
+	var ret4, ret6 *netip.Addr
+	err := db.Write(func(tx *gorm.DB) error {
+		var v4s []sql.NullString
+		var v6s []sql.NullString
+
+		err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error
 		if err != nil {
-			return nil, nil, fmt.Errorf("allocating IPv6 address: %w", err)
+			return fmt.Errorf("reading IPv4 addresses from database: %w", err)
 		}
-		i.prev6 = *ret6
+
+		err = tx.Model(&types.Node{}).Pluck("ipv6", &v6s).Error
+		if err != nil {
+			return fmt.Errorf("reading IPv6 addresses from database: %w", err)
+		}
+
+		var ips netipx.IPSetBuilder
+
+		if i.prefix4 != nil {
+			network4, broadcast4 := util.GetIPPrefixEndpoints(*i.prefix4)
+			ips.Add(network4)
+			ips.Add(broadcast4)
+		}
+
+		if i.prefix6 != nil {
+			network6, broadcast6 := util.GetIPPrefixEndpoints(*i.prefix6)
+			ips.Add(network6)
+			ips.Add(broadcast6)
+		}
+
+		for _, addrStr := range append(v4s, v6s...) {
+			if addrStr.Valid {
+				addr, err := netip.ParseAddr(addrStr.String)
+				if err != nil {
+					return fmt.Errorf("parsing IP address from database: %w", err)
+				}
+
+				ips.Add(addr)
+			}
+		}
+
+		i.usedIPs = ips
+
+		if i.prefix4 != nil {
+			ret4, err = i.next(i.prefix4, ips)
+			if err != nil {
+				return fmt.Errorf("allocating IPv4 address: %w", err)
+			}
+		}
+
+		if i.prefix6 != nil {
+			ret6, err = i.next(i.prefix6, ips)
+			if err != nil {
+				return fmt.Errorf("allocating IPv6 address: %w", err)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return ret4, ret6, nil
@@ -157,58 +211,67 @@ func (i *IPAllocator) Next() (*netip.Addr, *netip.Addr, error) {
 
 var ErrCouldNotAllocateIP = errors.New("failed to allocate IP")
 
-func (i *IPAllocator) nextLocked(prev netip.Addr, prefix *netip.Prefix) (*netip.Addr, error) {
+func (i *IPAllocator) nextLocked(prefix *netip.Prefix) (*netip.Addr, error) {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
-	return i.next(prev, prefix)
+	return i.next(prefix, i.usedIPs)
 }
 
-func (i *IPAllocator) next(prev netip.Addr, prefix *netip.Prefix) (*netip.Addr, error) {
+func (i *IPAllocator) next(prefix *netip.Prefix, usedIPs netipx.IPSetBuilder) (*netip.Addr, error) {
 	var err error
 	var ip netip.Addr
 
-	switch i.strategy {
-	case types.IPAllocationStrategySequential:
-		// Get the first IP in our prefix
-		ip = prev.Next()
-	case types.IPAllocationStrategyRandom:
-		ip, err = randomNext(*prefix)
-		if err != nil {
-			return nil, fmt.Errorf("getting random IP: %w", err)
-		}
-	}
-
-	// TODO(kradalby): maybe this can be done less often.
-	set, err := i.usedIPs.IPSet()
+	set, err := usedIPs.IPSet()
 	if err != nil {
 		return nil, err
 	}
 
-	for {
-		if !prefix.Contains(ip) {
-			return nil, ErrCouldNotAllocateIP
-		}
-
-		// Check if the IP has already been allocated.
-		if set.Contains(ip) {
-			switch i.strategy {
-			case types.IPAllocationStrategySequential:
-				ip = ip.Next()
-			case types.IPAllocationStrategyRandom:
-				ip, err = randomNext(*prefix)
-				if err != nil {
-					return nil, fmt.Errorf("getting random IP: %w", err)
+	switch i.strategy {
+	case types.IPAllocationStrategySequential:
+		// Find the highest allocated IP within the prefix from the current set
+		var highestAllocatedIP netip.Addr
+		for _, r := range set.Ranges() {
+			for ipInSet := r.From(); prefix.Contains(ipInSet) && ipInSet.Compare(r.To()) <= 0; ipInSet = ipInSet.Next() {
+				if highestAllocatedIP == (netip.Addr{}) || ipInSet.Compare(highestAllocatedIP) > 0 {
+					highestAllocatedIP = ipInSet
 				}
 			}
-
-			continue
 		}
 
-		i.usedIPs.Add(ip)
+		currentIP := prefix.Addr().Next() // Start after network address
+		if highestAllocatedIP != (netip.Addr{}) {
+			currentIP = highestAllocatedIP.Next()
+		}
 
-		return &ip, nil
+		for {
+			if !prefix.Contains(currentIP) {
+				return nil, ErrCouldNotAllocateIP
+			}
+			if !set.Contains(currentIP) {
+				ip = currentIP
+				break
+			}
+			currentIP = currentIP.Next()
+		}
+	case types.IPAllocationStrategyRandom:
+		for attempts := 0; attempts < 100; attempts++ {
+			ip, err = randomNext(*prefix)
+			if err != nil {
+				return nil, fmt.Errorf("getting random IP: %w", err)
+			}
+			if !set.Contains(ip) {
+				break
+			}
+		}
+		if set.Contains(ip) {
+			return nil, ErrCouldNotAllocateIP
+		}
 	}
+
+	usedIPs.Add(ip)
+
+	return &ip, nil
 }
 
 func randomNext(pfx netip.Prefix) (netip.Addr, error) {
@@ -267,6 +330,45 @@ func (db *HSDatabase) BackfillNodeIPs(i *IPAllocator) ([]string, error) {
 
 		log.Trace().Msgf("starting to backfill IPs")
 
+		// Rebuild the IPSet from the database within the transaction
+		var v4s []sql.NullString
+		var v6s []sql.NullString
+
+		err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error
+		if err != nil {
+			return fmt.Errorf("reading IPv4 addresses from database: %w", err)
+		}
+
+		err = tx.Model(&types.Node{}).Pluck("ipv6", &v6s).Error
+		if err != nil {
+			return fmt.Errorf("reading IPv6 addresses from database: %w", err)
+		}
+
+		var currentIPs netipx.IPSetBuilder
+
+		if i.prefix4 != nil {
+			network4, broadcast4 := util.GetIPPrefixEndpoints(*i.prefix4)
+			currentIPs.Add(network4)
+			currentIPs.Add(broadcast4)
+		}
+
+		if i.prefix6 != nil {
+			network6, broadcast6 := util.GetIPPrefixEndpoints(*i.prefix6)
+			currentIPs.Add(network6)
+			currentIPs.Add(broadcast6)
+		}
+
+		for _, addrStr := range append(v4s, v6s...) {
+			if addrStr.Valid {
+				addr, err := netip.ParseAddr(addrStr.String)
+				if err != nil {
+					return fmt.Errorf("parsing IP address from database: %w", err)
+				}
+
+				currentIPs.Add(addr)
+			}
+		}
+
 		nodes, err := ListNodes(tx)
 		if err != nil {
 			return fmt.Errorf("listing nodes to backfill IPs: %w", err)
@@ -278,7 +380,7 @@ func (db *HSDatabase) BackfillNodeIPs(i *IPAllocator) ([]string, error) {
 			changed := false
 			// IPv4 prefix is set, but node ip is missing, alloc
 			if i.prefix4 != nil && node.IPv4 == nil {
-				ret4, err := i.nextLocked(i.prev4, i.prefix4)
+				ret4, err := i.next(i.prefix4, currentIPs)
 				if err != nil {
 					return fmt.Errorf("failed to allocate ipv4 for node(%d): %w", node.ID, err)
 				}
@@ -290,7 +392,7 @@ func (db *HSDatabase) BackfillNodeIPs(i *IPAllocator) ([]string, error) {
 
 			// IPv6 prefix is set, but node ip is missing, alloc
 			if i.prefix6 != nil && node.IPv6 == nil {
-				ret6, err := i.nextLocked(i.prev6, i.prefix6)
+				ret6, err := i.next(i.prefix6, currentIPs)
 				if err != nil {
 					return fmt.Errorf("failed to allocate ipv6 for node(%d): %w", node.ID, err)
 				}
