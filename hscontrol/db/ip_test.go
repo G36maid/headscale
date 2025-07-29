@@ -162,7 +162,7 @@ func TestIPAllocatorSequential(t *testing.T) {
 			var got6s []netip.Addr
 
 			for range tt.getCount {
-				got4, got6, err := alloc.Next(db)
+				got4, got6, err := alloc.Next()
 				if err != nil {
 					t.Fatalf("allocating next IP: %s", err)
 				}
@@ -263,7 +263,7 @@ func TestIPAllocatorRandom(t *testing.T) {
 			spew.Dump(alloc)
 
 			for range tt.getCount {
-				got4, got6, err := alloc.Next(db)
+				got4, got6, err := alloc.Next()
 				if err != nil {
 					t.Fatalf("allocating next IP: %s", err)
 				}
