@@ -27,6 +27,10 @@ type IPAllocator struct {
 	prefix4 *netip.Prefix
 	prefix6 *netip.Prefix
 
+	// Previous IPs handed out
+	prev4 netip.Addr
+	prev6 netip.Addr
+
 	// strategy used for handing out IP addresses.
 	strategy types.IPAllocationStrategy
 
@@ -82,12 +86,19 @@ func NewIPAllocator(
 		network4, broadcast4 := util.GetIPPrefixEndpoints(*prefix4)
 		ips.Add(network4)
 		ips.Add(broadcast4)
+
+		// Use network as starting point, it will be used to call .Next()
+		// TODO(kradalby): Could potentially take all the IPs loaded from
+		// the database into account to start at a more "educated" location.
+		ret.prev4 = network4
 	}
 
 	if prefix6 != nil {
 		network6, broadcast6 := util.GetIPPrefixEndpoints(*prefix6)
 		ips.Add(network6)
 		ips.Add(broadcast6)
+
+		ret.prev6 = network6
 	}
 
 	// Fetch all the IP Addresses currently handed out from the Database
@@ -118,161 +129,93 @@ func NewIPAllocator(
 }
 
 func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
-	if db == nil {
-		i.mu.Lock()
-		defer i.mu.Unlock()
+	//var ret4, ret6 *netip.Addr
+	var err error
+	var ret4 *netip.Addr
+	var ret6 *netip.Addr
 
-		var err error
-		var ret4 *netip.Addr
-		var ret6 *netip.Addr
-
-		if i.prefix4 != nil {
-			ret4, err = i.next(i.prefix4, i.usedIPs)
-			if err != nil {
-				return nil, nil, fmt.Errorf("allocating IPv4 address: %w", err)
-			}
+	// The transaction provides a cluster-wide lock by ensuring atomicity
+	// of the IP allocation process.
+	err = db.Write(func(tx *gorm.DB) error {
+		// Step 3.1: Sync - Get all current IPs from DB
+		var v4s, v6s []sql.NullString
+		if err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error; err != nil {
+			return fmt.Errorf("plucking IPv4 addresses: %w", err)
+		}
+		if err := tx.Model(&types.Node{}).Pluck("ipv6", &v6s).Error; err != nil {
+			return fmt.Errorf("plucking IPv6 addresses: %w", err)
 		}
 
-		if i.prefix6 != nil {
-			ret6, err = i.next(i.prefix6, i.usedIPs)
-			if err != nil {
-				return nil, nil, fmt.Errorf("allocating IPv6 address: %w", err)
-			}
-		}
+		// Step 3.2: Build a fresh, up-to-date IP set
+		var currentUsedIPs netipx.IPSetBuilder
 
-		return ret4, ret6, nil
-	}
-
-	var ret4, ret6 *netip.Addr
-	err := db.Write(func(tx *gorm.DB) error {
-		var v4s []sql.NullString
-		var v6s []sql.NullString
-
-		err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error
-		if err != nil {
-			return fmt.Errorf("reading IPv4 addresses from database: %w", err)
-		}
-
-		err = tx.Model(&types.Node{}).Pluck("ipv6", &v6s).Error
-		if err != nil {
-			return fmt.Errorf("reading IPv6 addresses from database: %w", err)
-		}
-
-		var ips netipx.IPSetBuilder
-
+		// Add network and broadcast addrs to used pool so they
+		// are not handed out to nodes.
 		if i.prefix4 != nil {
 			network4, broadcast4 := util.GetIPPrefixEndpoints(*i.prefix4)
-			ips.Add(network4)
-			ips.Add(broadcast4)
+			currentUsedIPs.Add(network4)
+			currentUsedIPs.Add(broadcast4)
 		}
-
 		if i.prefix6 != nil {
 			network6, broadcast6 := util.GetIPPrefixEndpoints(*i.prefix6)
-			ips.Add(network6)
-			ips.Add(broadcast6)
+			currentUsedIPs.Add(network6)
+			currentUsedIPs.Add(broadcast6)
 		}
 
+		// Add existing node IPs from the DB
 		for _, addrStr := range append(v4s, v6s...) {
 			if addrStr.Valid {
 				addr, err := netip.ParseAddr(addrStr.String)
 				if err != nil {
 					return fmt.Errorf("parsing IP address from database: %w", err)
 				}
-
-				ips.Add(addr)
+				currentUsedIPs.Add(addr)
 			}
 		}
 
-		i.usedIPs = ips
+		set, err := currentUsedIPs.IPSet()
+		if err != nil {
+			return fmt.Errorf("building current IP set: %w", err)
+		}
 
+		// Step 3.3: Allocate - Find the next available IP
 		if i.prefix4 != nil {
-			ret4, err = i.next(i.prefix4, ips)
+			candidate, err := i.findNextAvailableIPFromSet(i.prev4, i.prefix4, set, i.strategy)
 			if err != nil {
 				return fmt.Errorf("allocating IPv4 address: %w", err)
 			}
+			ret4 = candidate
 		}
 
 		if i.prefix6 != nil {
-			ret6, err = i.next(i.prefix6, ips)
+			candidate, err := i.findNextAvailableIPFromSet(i.prev6, i.prefix6, set, i.strategy)
 			if err != nil {
 				return fmt.Errorf("allocating IPv6 address: %w", err)
 			}
+			ret6 = candidate
 		}
 
-		return nil
+		return nil // Success commits the transaction
 	})
 
 	if err != nil {
 		return nil, nil, err
 	}
 
+	// Update the local cache to optimize the next attempt.
+	// This happens AFTER the transaction, as it's for this specific instance's
+	// state, not for transactional integrity.
+	if ret4 != nil {
+		i.prev4 = *ret4
+	}
+	if ret6 != nil {
+		i.prev6 = *ret6
+	}
+
 	return ret4, ret6, nil
 }
 
 var ErrCouldNotAllocateIP = errors.New("failed to allocate IP")
-
-func (i *IPAllocator) nextLocked(prefix *netip.Prefix) (*netip.Addr, error) {
-	i.mu.Lock()
-	defer i.mu.Unlock()
-
-	return i.next(prefix, i.usedIPs)
-}
-
-func (i *IPAllocator) next(prefix *netip.Prefix, usedIPs netipx.IPSetBuilder) (*netip.Addr, error) {
-	var err error
-	var ip netip.Addr
-
-	set, err := usedIPs.IPSet()
-	if err != nil {
-		return nil, err
-	}
-
-	switch i.strategy {
-	case types.IPAllocationStrategySequential:
-		// Find the highest allocated IP within the prefix from the current set
-		var highestAllocatedIP netip.Addr
-		for _, r := range set.Ranges() {
-			for ipInSet := r.From(); prefix.Contains(ipInSet) && ipInSet.Compare(r.To()) <= 0; ipInSet = ipInSet.Next() {
-				if highestAllocatedIP == (netip.Addr{}) || ipInSet.Compare(highestAllocatedIP) > 0 {
-					highestAllocatedIP = ipInSet
-				}
-			}
-		}
-
-		currentIP := prefix.Addr().Next() // Start after network address
-		if highestAllocatedIP != (netip.Addr{}) {
-			currentIP = highestAllocatedIP.Next()
-		}
-
-		for {
-			if !prefix.Contains(currentIP) {
-				return nil, ErrCouldNotAllocateIP
-			}
-			if !set.Contains(currentIP) {
-				ip = currentIP
-				break
-			}
-			currentIP = currentIP.Next()
-		}
-	case types.IPAllocationStrategyRandom:
-		for attempts := 0; attempts < 100; attempts++ {
-			ip, err = randomNext(*prefix)
-			if err != nil {
-				return nil, fmt.Errorf("getting random IP: %w", err)
-			}
-			if !set.Contains(ip) {
-				break
-			}
-		}
-		if set.Contains(ip) {
-			return nil, ErrCouldNotAllocateIP
-		}
-	}
-
-	usedIPs.Add(ip)
-
-	return &ip, nil
-}
 
 func randomNext(pfx netip.Prefix) (netip.Addr, error) {
 	rang := netipx.RangeOfPrefix(pfx)
@@ -311,6 +254,49 @@ func randomNext(pfx netip.Prefix) (netip.Addr, error) {
 	return ip, nil
 }
 
+// findNextAvailableIPFromSet finds the next available IP address within a given prefix,
+// avoiding IPs already present in the provided usedIPSet.
+func (i *IPAllocator) findNextAvailableIPFromSet(
+	prev netip.Addr,
+	prefix *netip.Prefix,
+	usedIPSet *netipx.IPSet,
+	strategy types.IPAllocationStrategy,
+) (*netip.Addr, error) {
+	var ip netip.Addr
+	var err error
+
+	switch strategy {
+	case types.IPAllocationStrategySequential:
+		ip = prev.Next()
+	case types.IPAllocationStrategyRandom:
+		ip, err = randomNext(*prefix)
+		if err != nil {
+			return nil, fmt.Errorf("getting random IP: %w", err)
+		}
+	}
+
+	for {
+		if !prefix.Contains(ip) {
+			return nil, ErrCouldNotAllocateIP
+		}
+
+		if usedIPSet.Contains(ip) {
+			switch strategy {
+			case types.IPAllocationStrategySequential:
+				ip = ip.Next()
+			case types.IPAllocationStrategyRandom:
+				ip, err = randomNext(*prefix)
+				if err != nil {
+					return nil, fmt.Errorf("getting random IP: %w", err)
+				}
+			}
+			continue
+		}
+
+		return &ip, nil
+	}
+}
+
 // BackfillNodeIPs will take a database transaction, and
 // iterate through all of the current nodes in headscale
 // and ensure it has IP addresses according to the current
@@ -330,43 +316,44 @@ func (db *HSDatabase) BackfillNodeIPs(i *IPAllocator) ([]string, error) {
 
 		log.Trace().Msgf("starting to backfill IPs")
 
-		// Rebuild the IPSet from the database within the transaction
-		var v4s []sql.NullString
-		var v6s []sql.NullString
-
-		err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error
-		if err != nil {
-			return fmt.Errorf("reading IPv4 addresses from database: %w", err)
+		// Sync - Get all current IPs from DB within this transaction
+		var v4s, v6s []sql.NullString
+		if err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error; err != nil {
+			return fmt.Errorf("plucking IPv4 addresses for backfill: %w", err)
+		}
+		if err := tx.Model(&types.Node{}).Pluck("ipv6", &v6s).Error; err != nil {
+			return fmt.Errorf("plucking IPv6 addresses for backfill: %w", err)
 		}
 
-		err = tx.Model(&types.Node{}).Pluck("ipv6", &v6s).Error
-		if err != nil {
-			return fmt.Errorf("reading IPv6 addresses from database: %w", err)
-		}
+		// Build a fresh, up-to-date IP set for this transaction
+		var currentUsedIPsBuilder netipx.IPSetBuilder
 
-		var currentIPs netipx.IPSetBuilder
-
+		// Add network and broadcast addrs to used pool
 		if i.prefix4 != nil {
 			network4, broadcast4 := util.GetIPPrefixEndpoints(*i.prefix4)
-			currentIPs.Add(network4)
-			currentIPs.Add(broadcast4)
+			currentUsedIPsBuilder.Add(network4)
+			currentUsedIPsBuilder.Add(broadcast4)
 		}
-
 		if i.prefix6 != nil {
 			network6, broadcast6 := util.GetIPPrefixEndpoints(*i.prefix6)
-			currentIPs.Add(network6)
-			currentIPs.Add(broadcast6)
+			currentUsedIPsBuilder.Add(network6)
+			currentUsedIPsBuilder.Add(broadcast6)
 		}
 
+		// Add existing node IPs from the DB
 		for _, addrStr := range append(v4s, v6s...) {
 			if addrStr.Valid {
 				addr, err := netip.ParseAddr(addrStr.String)
 				if err != nil {
-					return fmt.Errorf("parsing IP address from database: %w", err)
+					return fmt.Errorf("parsing IP address from database for backfill: %w", err)
 				}
-
-				currentIPs.Add(addr)
+				currentUsedIPsBuilder.Add(addr)
 			}
+		}
+
+		currentIPSet, err := currentUsedIPsBuilder.IPSet()
+		if err != nil {
+			return fmt.Errorf("building current IP set for backfill: %w", err)
 		}
 
 		nodes, err := ListNodes(tx)
@@ -380,10 +367,15 @@ func (db *HSDatabase) BackfillNodeIPs(i *IPAllocator) ([]string, error) {
 			changed := false
 			// IPv4 prefix is set, but node ip is missing, alloc
 			if i.prefix4 != nil && node.IPv4 == nil {
-				ret4, err := i.next(i.prefix4, currentIPs)
+				ret4, err := i.findNextAvailableIPFromSet(i.prev4, i.prefix4, currentIPSet, i.strategy)
 				if err != nil {
 					return fmt.Errorf("failed to allocate ipv4 for node(%d): %w", node.ID, err)
 				}
+				// Add the newly allocated IP to the currentIPSet so it's not reused for subsequent nodes in this transaction
+				currentIPSetBuilder := netipx.IPSetBuilder{}
+				currentIPSetBuilder.AddSet(currentIPSet)
+				currentIPSetBuilder.Add(*ret4)
+				currentIPSet, _ = currentIPSetBuilder.IPSet() // Rebuild the set
 
 				node.IPv4 = ret4
 				changed = true
@@ -392,10 +384,15 @@ func (db *HSDatabase) BackfillNodeIPs(i *IPAllocator) ([]string, error) {
 
 			// IPv6 prefix is set, but node ip is missing, alloc
 			if i.prefix6 != nil && node.IPv6 == nil {
-				ret6, err := i.next(i.prefix6, currentIPs)
+				ret6, err := i.findNextAvailableIPFromSet(i.prev6, i.prefix6, currentIPSet, i.strategy)
 				if err != nil {
 					return fmt.Errorf("failed to allocate ipv6 for node(%d): %w", node.ID, err)
 				}
+				// Add the newly allocated IP to the currentIPSet so it's not reused for subsequent nodes in this transaction
+				currentIPSetBuilder := netipx.IPSetBuilder{}
+				currentIPSetBuilder.AddSet(currentIPSet)
+				currentIPSetBuilder.Add(*ret6)
+				currentIPSet, _ = currentIPSetBuilder.IPSet() // Rebuild the set
 
 				node.IPv6 = ret6
 				changed = true
