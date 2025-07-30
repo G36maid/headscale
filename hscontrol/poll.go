@@ -208,9 +208,9 @@ func (m *mapSession) serveLongPoll() {
 			// Failover the node's routes if any.
 			m.h.updateNodeOnlineStatus(false, m.node)
 			m.pollFailoverRoutes("node closing connection", m.node)
-		}
+			m.h.setLastStateChangeToNow()
 
-		m.h.setLastStateChangeToNow()
+		}
 
 		m.afterServeLongPoll()
 		m.infof("node has disconnected, mapSession: %p, chan: %p", m, m.ch)
