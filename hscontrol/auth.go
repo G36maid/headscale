@@ -402,6 +402,7 @@ func (h *Headscale) handleAuthKey(
 	}
 
 	h.setLastStateChangeToNow()
+	//todo nodeNotifier
 
 	resp.MachineAuthorized = true
 	resp.User = *pak.User.TailscaleUser()
