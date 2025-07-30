@@ -988,13 +988,35 @@ func (h *Headscale) syncLastStateChangeFromDB() {
 		//ACL policy update
 		h.loadACLPolicy()
 
-		ctx := types.NotifyCtx(context.Background(), "acl-update", "na")
+		//update nodeNotifier connect map
+		h.updateNotifierConnectMap()
+
+		ctx := types.NotifyCtx(context.Background(), "sync-DB-update", "na")
 		h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
 			Type: types.StateFullUpdate,
 		})
-
-		// generate new routes and update
 	}
+}
+
+func (h *Headscale) updateNotifierConnectMap() {
+	// read from db
+	nodes, err := h.db.ListNodes()
+	if err != nil {
+		log.Error().Err(err).Msg("Could not list nodes for online status sync")
+		return
+	}
+
+	// re-generate the online status from the single source of truth (the DB)
+	onlineStatus := h.nodeNotifier.LikelyConnectedMap()
+	for _, node := range nodes {
+		//use db/nodes.go GetIsOnline
+		if node.IsOnlineDatabaseField.Valid {
+			onlineStatus.Store(node.ID, node.IsOnlineDatabaseField.Bool)
+		} else {
+			onlineStatus.Store(node.ID, false)
+		}
+	}
+	log.Debug().Msg("Updated notifier connect map")
 }
 
 func (h *Headscale) setLastStateChangeToNow() {
@@ -1181,6 +1203,7 @@ func (h *Headscale) loadACLPolicy() error {
 	}
 
 	h.ACLPolicy = pol
+	h.setLastStateChangeToNow()
 
 	return nil
 }

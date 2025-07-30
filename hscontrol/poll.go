@@ -208,7 +208,6 @@ func (m *mapSession) serveLongPoll() {
 			// Failover the node's routes if any.
 			m.h.updateNodeOnlineStatus(false, m.node)
 			m.pollFailoverRoutes("node closing connection", m.node)
-			m.h.setLastStateChangeToNow()
 
 		}
 
@@ -422,6 +421,9 @@ func (m *mapSession) pollFailoverRoutes(where string, node *types.Node) {
 // about change in their online/offline status.
 // It takes a StateUpdateType of either StatePeerOnlineChanged or StatePeerOfflineChanged.
 func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
+
+	//node.IsOnline = &online
+
 	change := &tailcfg.PeerChange{
 		NodeID: tailcfg.NodeID(node.ID),
 		Online: &online,
@@ -443,6 +445,17 @@ func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
 			return
 		}
 	}
+
+	err := h.db.Write(func(tx *gorm.DB) error {
+		return db.SetIsOnline(tx, node.ID, online)
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("Cannot update node Online")
+
+		return
+	}
+
+	h.setLastStateChangeToNow()
 
 	ctx := types.NotifyCtx(context.Background(), "poll-nodeupdate-onlinestatus", node.Hostname)
 	h.nodeNotifier.NotifyWithIgnore(ctx, types.StateUpdate{

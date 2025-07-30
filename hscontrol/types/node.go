@@ -131,7 +131,12 @@ type Node struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 
-	IsOnline *bool `gorm:"-"`
+	// IsOnlineDatabaseField indicates if the node is currently online.
+	// It is _only_ used for reading and writing the key to the
+	// database and should not be used directly.
+	// Use IsOnline instead.
+	IsOnlineDatabaseField sql.NullBool `gorm:"column:is_online"`
+	IsOnline              *bool        `gorm:"-"`
 }
 
 type (
@@ -289,6 +294,12 @@ func (node *Node) BeforeSave(tx *gorm.DB) error {
 		node.IPv6DatabaseField.String, node.IPv6DatabaseField.Valid = "", false
 	}
 
+	if node.IsOnline != nil {
+		node.IsOnlineDatabaseField.Bool, node.IsOnlineDatabaseField.Valid = *node.IsOnline, true
+	} else {
+		node.IsOnlineDatabaseField.Bool, node.IsOnlineDatabaseField.Valid = false, false // Default to false if nil
+	}
+
 	return nil
 }
 
@@ -353,6 +364,13 @@ func (node *Node) AfterFind(tx *gorm.DB) error {
 		}
 
 		node.IPv6 = &ip
+	}
+
+	if node.IsOnlineDatabaseField.Valid {
+		online := node.IsOnlineDatabaseField.Bool
+		node.IsOnline = &online
+	} else {
+		node.IsOnline = nil // Or default to &false if you prefer a non-nil bool for offline
 	}
 
 	return nil
