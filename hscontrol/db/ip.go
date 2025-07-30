@@ -128,16 +128,13 @@ func NewIPAllocator(
 	return &ret, nil
 }
 
+// The transaction provides a cluster-wide lock by ensuring atomicity
+// of the IP allocation process.
 func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
-	//var ret4, ret6 *netip.Addr
+	var ret4, ret6 *netip.Addr
 	var err error
-	var ret4 *netip.Addr
-	var ret6 *netip.Addr
 
-	// The transaction provides a cluster-wide lock by ensuring atomicity
-	// of the IP allocation process.
-	err = db.Write(func(tx *gorm.DB) error {
-		// Step 3.1: Sync - Get all current IPs from DB
+	err = db.Write(func(tx *gorm.DB) error { //transaction start
 		var v4s, v6s []sql.NullString
 		if err := tx.Model(&types.Node{}).Pluck("ipv4", &v4s).Error; err != nil {
 			return fmt.Errorf("plucking IPv4 addresses: %w", err)
@@ -146,11 +143,8 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 			return fmt.Errorf("plucking IPv6 addresses: %w", err)
 		}
 
-		// Step 3.2: Build a fresh, up-to-date IP set
 		var currentUsedIPs netipx.IPSetBuilder
 
-		// Add network and broadcast addrs to used pool so they
-		// are not handed out to nodes.
 		if i.prefix4 != nil {
 			network4, broadcast4 := util.GetIPPrefixEndpoints(*i.prefix4)
 			currentUsedIPs.Add(network4)
@@ -162,7 +156,6 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 			currentUsedIPs.Add(broadcast6)
 		}
 
-		// Add existing node IPs from the DB
 		for _, addrStr := range append(v4s, v6s...) {
 			if addrStr.Valid {
 				addr, err := netip.ParseAddr(addrStr.String)
@@ -178,7 +171,7 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 			return fmt.Errorf("building current IP set: %w", err)
 		}
 
-		// Step 3.3: Allocate - Find the next available IP
+		// Allocate - Find the next available IP
 		if i.prefix4 != nil {
 			candidate, err := i.findNextAvailableIPFromSet(i.prev4, i.prefix4, set, i.strategy)
 			if err != nil {
@@ -195,7 +188,7 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 			ret6 = candidate
 		}
 
-		return nil // Success commits the transaction
+		return nil // commit. transaction end
 	})
 
 	if err != nil {
@@ -203,8 +196,6 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 	}
 
 	// Update the local cache to optimize the next attempt.
-	// This happens AFTER the transaction, as it's for this specific instance's
-	// state, not for transactional integrity.
 	if ret4 != nil {
 		i.prev4 = *ret4
 	}
