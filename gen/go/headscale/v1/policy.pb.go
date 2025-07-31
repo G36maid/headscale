@@ -206,6 +206,554 @@ func (x *GetPolicyResponse) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type ACLGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupName     string                 `protobuf:"bytes,1,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLGroupRequest) Reset() {
+	*x = ACLGroupRequest{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLGroupRequest) ProtoMessage() {}
+
+func (x *ACLGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLGroupRequest.ProtoReflect.Descriptor instead.
+func (*ACLGroupRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ACLGroupRequest) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
+	}
+	return ""
+}
+
+type ACLGroupResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLGroupResponse) Reset() {
+	*x = ACLGroupResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLGroupResponse) ProtoMessage() {}
+
+func (x *ACLGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLGroupResponse.ProtoReflect.Descriptor instead.
+func (*ACLGroupResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{5}
+}
+
+type ACLGroupUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupName     string                 `protobuf:"bytes,1,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLGroupUserRequest) Reset() {
+	*x = ACLGroupUserRequest{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLGroupUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLGroupUserRequest) ProtoMessage() {}
+
+func (x *ACLGroupUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLGroupUserRequest.ProtoReflect.Descriptor instead.
+func (*ACLGroupUserRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ACLGroupUserRequest) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
+	}
+	return ""
+}
+
+func (x *ACLGroupUserRequest) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+type ACLGroupUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLGroupUserResponse) Reset() {
+	*x = ACLGroupUserResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLGroupUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLGroupUserResponse) ProtoMessage() {}
+
+func (x *ACLGroupUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLGroupUserResponse.ProtoReflect.Descriptor instead.
+func (*ACLGroupUserResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{7}
+}
+
+type ACLHostnameRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Hostname      string                 `protobuf:"bytes,1,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLHostnameRequest) Reset() {
+	*x = ACLHostnameRequest{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLHostnameRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLHostnameRequest) ProtoMessage() {}
+
+func (x *ACLHostnameRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLHostnameRequest.ProtoReflect.Descriptor instead.
+func (*ACLHostnameRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ACLHostnameRequest) GetHostname() string {
+	if x != nil {
+		return x.Hostname
+	}
+	return ""
+}
+
+func (x *ACLHostnameRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *ACLHostnameRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type ACLHostnameResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLHostnameResponse) Reset() {
+	*x = ACLHostnameResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLHostnameResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLHostnameResponse) ProtoMessage() {}
+
+func (x *ACLHostnameResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLHostnameResponse.ProtoReflect.Descriptor instead.
+func (*ACLHostnameResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{9}
+}
+
+type ACLRemoveHostnameResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLRemoveHostnameResponse) Reset() {
+	*x = ACLRemoveHostnameResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLRemoveHostnameResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLRemoveHostnameResponse) ProtoMessage() {}
+
+func (x *ACLRemoveHostnameResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLRemoveHostnameResponse.ProtoReflect.Descriptor instead.
+func (*ACLRemoveHostnameResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{10}
+}
+
+type ACLTagRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tag           string                 `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLTagRequest) Reset() {
+	*x = ACLTagRequest{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLTagRequest) ProtoMessage() {}
+
+func (x *ACLTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLTagRequest.ProtoReflect.Descriptor instead.
+func (*ACLTagRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ACLTagRequest) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+type ACLTagResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLTagResponse) Reset() {
+	*x = ACLTagResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLTagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLTagResponse) ProtoMessage() {}
+
+func (x *ACLTagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLTagResponse.ProtoReflect.Descriptor instead.
+func (*ACLTagResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{12}
+}
+
+type ACLRuleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Src           []string               `protobuf:"bytes,1,rep,name=src,proto3" json:"src,omitempty"`
+	Dst           []string               `protobuf:"bytes,2,rep,name=dst,proto3" json:"dst,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLRuleRequest) Reset() {
+	*x = ACLRuleRequest{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLRuleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLRuleRequest) ProtoMessage() {}
+
+func (x *ACLRuleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLRuleRequest.ProtoReflect.Descriptor instead.
+func (*ACLRuleRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ACLRuleRequest) GetSrc() []string {
+	if x != nil {
+		return x.Src
+	}
+	return nil
+}
+
+func (x *ACLRuleRequest) GetDst() []string {
+	if x != nil {
+		return x.Dst
+	}
+	return nil
+}
+
+type ACLRuleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLRuleResponse) Reset() {
+	*x = ACLRuleResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLRuleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLRuleResponse) ProtoMessage() {}
+
+func (x *ACLRuleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLRuleResponse.ProtoReflect.Descriptor instead.
+func (*ACLRuleResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{14}
+}
+
+type ACLCtrlRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Action        string                 `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLCtrlRequest) Reset() {
+	*x = ACLCtrlRequest{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLCtrlRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLCtrlRequest) ProtoMessage() {}
+
+func (x *ACLCtrlRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLCtrlRequest.ProtoReflect.Descriptor instead.
+func (*ACLCtrlRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ACLCtrlRequest) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+type ACLCtrlResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ACLCtrlResponse) Reset() {
+	*x = ACLCtrlResponse{}
+	mi := &file_headscale_v1_policy_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ACLCtrlResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ACLCtrlResponse) ProtoMessage() {}
+
+func (x *ACLCtrlResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_policy_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ACLCtrlResponse.ProtoReflect.Descriptor instead.
+func (*ACLCtrlResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_policy_proto_rawDescGZIP(), []int{16}
+}
+
 var File_headscale_v1_policy_proto protoreflect.FileDescriptor
 
 const file_headscale_v1_policy_proto_rawDesc = "" +
@@ -221,7 +769,32 @@ const file_headscale_v1_policy_proto_rawDesc = "" +
 	"\x11GetPolicyResponse\x12\x16\n" +
 	"\x06policy\x18\x01 \x01(\tR\x06policy\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB)Z'github.com/juanfont/headscale/gen/go/v1b\x06proto3"
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"0\n" +
+	"\x0fACLGroupRequest\x12\x1d\n" +
+	"\n" +
+	"group_name\x18\x01 \x01(\tR\tgroupName\"\x12\n" +
+	"\x10ACLGroupResponse\"P\n" +
+	"\x13ACLGroupUserRequest\x12\x1d\n" +
+	"\n" +
+	"group_name\x18\x01 \x01(\tR\tgroupName\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\x16\n" +
+	"\x14ACLGroupUserResponse\"^\n" +
+	"\x12ACLHostnameRequest\x12\x1a\n" +
+	"\bhostname\x18\x01 \x01(\tR\bhostname\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\"\x15\n" +
+	"\x13ACLHostnameResponse\"\x1b\n" +
+	"\x19ACLRemoveHostnameResponse\"!\n" +
+	"\rACLTagRequest\x12\x10\n" +
+	"\x03tag\x18\x01 \x01(\tR\x03tag\"\x10\n" +
+	"\x0eACLTagResponse\"4\n" +
+	"\x0eACLRuleRequest\x12\x10\n" +
+	"\x03src\x18\x01 \x03(\tR\x03src\x12\x10\n" +
+	"\x03dst\x18\x02 \x03(\tR\x03dst\"\x11\n" +
+	"\x0fACLRuleResponse\"(\n" +
+	"\x0eACLCtrlRequest\x12\x16\n" +
+	"\x06action\x18\x01 \x01(\tR\x06action\"\x11\n" +
+	"\x0fACLCtrlResponseB)Z'github.com/juanfont/headscale/gen/go/v1b\x06proto3"
 
 var (
 	file_headscale_v1_policy_proto_rawDescOnce sync.Once
@@ -235,22 +808,35 @@ func file_headscale_v1_policy_proto_rawDescGZIP() []byte {
 	return file_headscale_v1_policy_proto_rawDescData
 }
 
-var file_headscale_v1_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_headscale_v1_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_headscale_v1_policy_proto_goTypes = []any{
-	(*SetPolicyRequest)(nil),      // 0: headscale.v1.SetPolicyRequest
-	(*SetPolicyResponse)(nil),     // 1: headscale.v1.SetPolicyResponse
-	(*GetPolicyRequest)(nil),      // 2: headscale.v1.GetPolicyRequest
-	(*GetPolicyResponse)(nil),     // 3: headscale.v1.GetPolicyResponse
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(*SetPolicyRequest)(nil),          // 0: headscale.v1.SetPolicyRequest
+	(*SetPolicyResponse)(nil),         // 1: headscale.v1.SetPolicyResponse
+	(*GetPolicyRequest)(nil),          // 2: headscale.v1.GetPolicyRequest
+	(*GetPolicyResponse)(nil),         // 3: headscale.v1.GetPolicyResponse
+	(*ACLGroupRequest)(nil),           // 4: headscale.v1.ACLGroupRequest
+	(*ACLGroupResponse)(nil),          // 5: headscale.v1.ACLGroupResponse
+	(*ACLGroupUserRequest)(nil),       // 6: headscale.v1.ACLGroupUserRequest
+	(*ACLGroupUserResponse)(nil),      // 7: headscale.v1.ACLGroupUserResponse
+	(*ACLHostnameRequest)(nil),        // 8: headscale.v1.ACLHostnameRequest
+	(*ACLHostnameResponse)(nil),       // 9: headscale.v1.ACLHostnameResponse
+	(*ACLRemoveHostnameResponse)(nil), // 10: headscale.v1.ACLRemoveHostnameResponse
+	(*ACLTagRequest)(nil),             // 11: headscale.v1.ACLTagRequest
+	(*ACLTagResponse)(nil),            // 12: headscale.v1.ACLTagResponse
+	(*ACLRuleRequest)(nil),            // 13: headscale.v1.ACLRuleRequest
+	(*ACLRuleResponse)(nil),           // 14: headscale.v1.ACLRuleResponse
+	(*ACLCtrlRequest)(nil),            // 15: headscale.v1.ACLCtrlRequest
+	(*ACLCtrlResponse)(nil),           // 16: headscale.v1.ACLCtrlResponse
+	(*timestamppb.Timestamp)(nil),     // 17: google.protobuf.Timestamp
 }
 var file_headscale_v1_policy_proto_depIdxs = []int32{
-	4, // 0: headscale.v1.SetPolicyResponse.updated_at:type_name -> google.protobuf.Timestamp
-	4, // 1: headscale.v1.GetPolicyResponse.updated_at:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	17, // 0: headscale.v1.SetPolicyResponse.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 1: headscale.v1.GetPolicyResponse.updated_at:type_name -> google.protobuf.Timestamp
+	2,  // [2:2] is the sub-list for method output_type
+	2,  // [2:2] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_headscale_v1_policy_proto_init() }
@@ -264,7 +850,7 @@ func file_headscale_v1_policy_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_headscale_v1_policy_proto_rawDesc), len(file_headscale_v1_policy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

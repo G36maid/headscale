@@ -998,26 +998,6 @@ func (h *Headscale) syncLastStateChangeFromDB() {
 	}
 }
 
-func (h *Headscale) updateNotifierConnectMap() {
-	// read from db
-	nodes, err := h.db.ListNodes()
-	if err != nil {
-		log.Error().Err(err).Msg("Could not list nodes for online status sync")
-		return
-	}
-
-	// re-generate the online status from the single source of truth (the DB)
-	onlineStatus := h.nodeNotifier.LikelyConnectedMap()
-	for _, node := range nodes {
-		if node.IsOnline == nil {
-			log.Error().Uint64("node.id", node.ID.Uint64()).Msg("IsOnline is nil for node")
-			continue
-		}
-		onlineStatus.Store(node.ID, *node.IsOnline)
-	}
-	log.Info().Msg("Updated notifier connect map")
-}
-
 func (h *Headscale) setLastStateChangeToNow() {
 	var err error
 
@@ -1202,7 +1182,27 @@ func (h *Headscale) loadACLPolicy() error {
 	}
 
 	h.ACLPolicy = pol
-	h.setLastStateChangeToNow()
+	//h.setLastStateChangeToNow()
 
 	return nil
+}
+
+func (h *Headscale) updateNotifierConnectMap() {
+	// read from db
+	nodes, err := h.db.ListNodes()
+	if err != nil {
+		log.Error().Err(err).Msg("Could not list nodes for online status sync")
+		return
+	}
+
+	// re-generate the online status from the single source of truth (the DB)
+	onlineStatus := h.nodeNotifier.LikelyConnectedMap()
+	for _, node := range nodes {
+		if node.IsOnline == nil {
+			log.Error().Uint64("node.id", node.ID.Uint64()).Msg("IsOnline is nil for node")
+			continue
+		}
+		onlineStatus.Store(node.ID, *node.IsOnline)
+	}
+	log.Info().Msg("Updated notifier connect map")
 }

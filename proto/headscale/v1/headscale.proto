@@ -209,6 +209,106 @@ service HeadscaleService {
     }
     // --- Policy end ---
 
+    // --- ACL start ---
+    rpc ACLCreateGroup(ACLGroupRequest) returns(ACLGroupResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/group/{group_name}"
+        };
+    }
+
+    rpc ACLGroupAddUser(ACLGroupUserRequest) returns(ACLGroupUserResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/group/{group_name}/{username}"
+        };
+    }
+
+    rpc ACLGroupRemoveUser(ACLGroupUserRequest) returns(ACLGroupUserResponse) {
+        option(google.api.http) = {
+            delete: "/api/v1/acl/group/{group_name}/{username}"
+        };
+    }
+
+    rpc ACLRemoveGroup(ACLGroupRequest) returns(ACLGroupResponse) {
+        option(google.api.http) = {
+            delete: "/api/v1/acl/group/{group_name}"
+        };
+    }
+
+    rpc ACLBindHostname(ACLHostnameRequest) returns(ACLHostnameResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/host/{hostname}"
+            body: "*"
+        };
+    }
+
+    rpc ACLUpdateHostname(ACLHostnameRequest) returns(ACLHostnameResponse) {
+        option(google.api.http) = {
+            patch: "/api/v1/acl/host/{hostname}"
+            body: "*"
+        };
+    }
+
+    rpc ACLRemoveHostname(ACLHostnameRequest) returns(ACLHostnameResponse) {
+        option(google.api.http) = {
+            delete: "/api/v1/acl/host/{hostname}"
+        };
+    }
+
+    rpc ACLCreateTag(ACLTagRequest) returns(ACLTagResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/tag/{tag}"
+        };
+    }
+
+    rpc ACLRemoveTag(ACLTagRequest) returns(ACLTagResponse) {
+        option(google.api.http) = {
+            delete: "/api/v1/acl/tag/{tag}"
+        };
+    }
+
+    rpc ACLCreateRule(ACLRuleRequest) returns(ACLRuleResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/accept"
+            body: "*"
+        };
+    }
+
+    rpc ACLRemoveRule(ACLRuleRequest) returns(ACLRuleResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/deny"
+            body: "*"
+        };
+    }
+
+    rpc ACLForceRemoveRule(ACLRuleRequest) returns(ACLRuleResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/remove"
+            body: "*"
+        };
+    }
+
+    rpc ACLRuleInclude(ACLRuleRequest) returns(ACLRuleResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/include"
+            body: "*"
+        };
+    }
+
+    rpc ACLRuleExclude(ACLRuleRequest) returns(ACLRuleResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/exclude"
+            body: "*"
+        };
+    }
+
+    rpc ACLCtrl(ACLCtrlRequest) returns(ACLCtrlResponse) {
+        option(google.api.http) = {
+            post: "/api/v1/acl/ctrl/{action}"
+        };
+    }
+
+    // --- ACL end ---
+
     // Implement Tailscale API
     // rpc GetDevice(GetDeviceRequest) returns(GetDeviceResponse) {
     //     option(google.api.http) = {
