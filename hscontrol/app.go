@@ -1009,14 +1009,13 @@ func (h *Headscale) updateNotifierConnectMap() {
 	// re-generate the online status from the single source of truth (the DB)
 	onlineStatus := h.nodeNotifier.LikelyConnectedMap()
 	for _, node := range nodes {
-		//use db/nodes.go GetIsOnline
-		if node.IsOnlineDatabaseField.Valid {
-			onlineStatus.Store(node.ID, *node.IsOnline)
-		} else {
-			onlineStatus.Store(node.ID, false)
+		if node.IsOnline == nil {
+			log.Error().Uint64("node.id", node.ID.Uint64()).Msg("IsOnline is nil for node")
+			continue
 		}
+		onlineStatus.Store(node.ID, *node.IsOnline)
 	}
-	log.Debug().Msg("Updated notifier connect map")
+	log.Info().Msg("Updated notifier connect map")
 }
 
 func (h *Headscale) setLastStateChangeToNow() {

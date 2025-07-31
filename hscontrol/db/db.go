@@ -317,17 +317,18 @@ func NewHeadscaleDatabase(
 					return nil
 				},
 			},
-			{
-				// drop key-value table, it is not used, and has not contained
-				// useful data for a long time or ever.
-				ID: "202312101430",
-				Migrate: func(tx *gorm.DB) error {
-					return tx.Migrator().DropTable("kvs")
-				},
-				Rollback: func(tx *gorm.DB) error {
-					return nil
-				},
-			},
+			// Note: this is reused for lastchange
+			// {
+			// 	// drop key-value table, it is not used, and has not contained
+			// 	// useful data for a long time or ever.
+			// 	ID: "202312101430",
+			// 	Migrate: func(tx *gorm.DB) error {
+			// 		return tx.Migrator().DropTable("kvs")
+			// 	},
+			// 	Rollback: func(tx *gorm.DB) error {
+			// 		return nil
+			// 	},
+			// },
 			{
 				// remove last_successful_update from node table,
 				// no longer used.

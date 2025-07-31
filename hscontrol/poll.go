@@ -422,7 +422,7 @@ func (m *mapSession) pollFailoverRoutes(where string, node *types.Node) {
 // It takes a StateUpdateType of either StatePeerOnlineChanged or StatePeerOfflineChanged.
 func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
 
-	//node.IsOnline = &online
+	node.IsOnline = &online
 
 	change := &tailcfg.PeerChange{
 		NodeID: tailcfg.NodeID(node.ID),
@@ -444,6 +444,7 @@ func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
 
 			return
 		}
+		log.Info().Msgf("Node %s is now offline, LastSeen updated", node.Hostname)
 	}
 
 	err := h.db.Write(func(tx *gorm.DB) error {
@@ -451,10 +452,12 @@ func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
 	})
 
 	if err != nil {
-		log.Error().Err(err).Msg("Cannot update node Online")
+		log.Error().Err(err).Msg("Cannot update node On/Offline")
 
 		return
 	}
+
+	log.Info().Msgf("Node %s is now %s", node.Hostname, map[bool]string{true: "online", false: "offline"}[online])
 
 	h.setLastStateChangeToNow()
 
