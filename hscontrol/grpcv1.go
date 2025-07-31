@@ -869,26 +869,26 @@ func discardPendingACLConfig(h *Headscale) error {
 // ACLCreateGroup creates a new ACL group.
 func (api headscaleV1APIServer) ACLCreateGroup(
 	_ context.Context,
-	request *v1.ACLCreateGroupRequest,
+	request *v1.ACLGroupRequest,
 ) (*v1.ACLGroupResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	groupName := "group:" + request.GetGroupName()
 
-	if policy.Groups == nil {
-		policy.Groups = make(Groups)
+	if aclPolicy.Groups == nil {
+		aclPolicy.Groups = make(policy.Groups)
 	}
 
-	if _, exists := policy.Groups[groupName]; exists {
+	if _, exists := aclPolicy.Groups[groupName]; exists {
 		return nil, status.Error(codes.AlreadyExists, "Group already exists")
 	}
 
-	policy.Groups[groupName] = make([]string, 0)
+	aclPolicy.Groups[groupName] = make([]string, 0)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -900,7 +900,7 @@ func (api headscaleV1APIServer) ACLGroupAddUser(
 	ctx context.Context,
 	request *v1.ACLGroupUserRequest,
 ) (*v1.ACLGroupUserResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -908,21 +908,21 @@ func (api headscaleV1APIServer) ACLGroupAddUser(
 	groupName := "group:" + request.GetGroupName()
 	username := request.GetUsername()
 
-	if policy.Groups == nil {
+	if aclPolicy.Groups == nil {
 		return nil, status.Error(codes.InvalidArgument, "No group exists")
 	}
 
-	if _, exists := policy.Groups[groupName]; !exists {
+	if _, exists := aclPolicy.Groups[groupName]; !exists {
 		return nil, status.Error(codes.InvalidArgument, "Group does not exist")
 	}
 
-	if slices.Contains(policy.Groups[groupName], username) {
+	if slices.Contains(aclPolicy.Groups[groupName], username) {
 		return nil, status.Error(codes.AlreadyExists, "User already in the group")
 	}
 
-	policy.Groups[groupName] = append(policy.Groups[groupName], username)
+	aclPolicy.Groups[groupName] = append(aclPolicy.Groups[groupName], username)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -934,7 +934,7 @@ func (api headscaleV1APIServer) ACLGroupRemoveUser(
 	ctx context.Context,
 	request *v1.ACLGroupUserRequest,
 ) (*v1.ACLGroupUserResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -942,23 +942,23 @@ func (api headscaleV1APIServer) ACLGroupRemoveUser(
 	groupName := "group:" + request.GetGroupName()
 	username := request.GetUsername()
 
-	if policy.Groups == nil {
+	if aclPolicy.Groups == nil {
 		return nil, status.Error(codes.InvalidArgument, "No group exists")
 	}
 
-	if _, exists := policy.Groups[groupName]; !exists {
+	if _, exists := aclPolicy.Groups[groupName]; !exists {
 		return nil, status.Error(codes.InvalidArgument, "Group does not exist")
 	}
 
-	idx := slices.Index(policy.Groups[groupName], username)
+	idx := slices.Index(aclPolicy.Groups[groupName], username)
 
 	if idx == -1 {
 		return nil, status.Error(codes.InvalidArgument, "User does not in the group")
 	}
 
-	policy.Groups[groupName] = slices.Delete(policy.Groups[groupName], idx, idx+1)
+	aclPolicy.Groups[groupName] = slices.Delete(aclPolicy.Groups[groupName], idx, idx+1)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -970,24 +970,24 @@ func (api headscaleV1APIServer) ACLRemoveGroup(
 	ctx context.Context,
 	request *v1.ACLGroupRequest,
 ) (*v1.ACLGroupResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	groupName := "group:" + request.GetGroupName()
 
-	if policy.Groups == nil {
+	if aclPolicy.Groups == nil {
 		return nil, status.Error(codes.InvalidArgument, "No group exists")
 	}
 
-	if _, exists := policy.Groups[groupName]; !exists {
+	if _, exists := aclPolicy.Groups[groupName]; !exists {
 		return nil, status.Error(codes.InvalidArgument, "Group does not exist")
 	}
 
-	delete(policy.Groups, groupName)
+	delete(aclPolicy.Groups, groupName)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -999,7 +999,7 @@ func (api headscaleV1APIServer) ACLBindHostname(
 	ctx context.Context,
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -1014,11 +1014,11 @@ func (api headscaleV1APIServer) ACLBindHostname(
 
 	hostname = hostType + ":" + hostname
 
-	if policy.Hosts == nil {
-		policy.Hosts = make(Hosts)
+	if aclPolicy.Hosts == nil {
+		aclPolicy.Hosts = make(policy.Hosts)
 	}
 
-	if _, exists := policy.Hosts[hostname]; exists {
+	if _, exists := aclPolicy.Hosts[hostname]; exists {
 		return nil, status.Error(codes.AlreadyExists, "Hostname already exists")
 	}
 
@@ -1027,9 +1027,9 @@ func (api headscaleV1APIServer) ACLBindHostname(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	policy.Hosts[hostname] = prefix
+	aclPolicy.Hosts[hostname] = prefix
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1041,7 +1041,7 @@ func (api headscaleV1APIServer) ACLUpdateHostname(
 	ctx context.Context,
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -1056,11 +1056,11 @@ func (api headscaleV1APIServer) ACLUpdateHostname(
 
 	hostname = hostType + ":" + hostname
 
-	if policy.Hosts == nil {
+	if aclPolicy.Hosts == nil {
 		return nil, status.Error(codes.Internal, "No host exists")
 	}
 
-	if _, exists := policy.Hosts[hostname]; !exists {
+	if _, exists := aclPolicy.Hosts[hostname]; !exists {
 		return nil, status.Error(codes.InvalidArgument, "Hostname does not exist")
 	}
 
@@ -1069,9 +1069,9 @@ func (api headscaleV1APIServer) ACLUpdateHostname(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	policy.Hosts[hostname] = prefix
+	aclPolicy.Hosts[hostname] = prefix
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1083,7 +1083,7 @@ func (api headscaleV1APIServer) ACLRemoveHostname(
 	ctx context.Context,
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -1091,17 +1091,17 @@ func (api headscaleV1APIServer) ACLRemoveHostname(
 	hostname := request.GetHostname()
 	hostname = "subnet:" + hostname
 
-	if policy.Hosts == nil {
+	if aclPolicy.Hosts == nil {
 		return nil, status.Error(codes.Internal, "No host exists")
 	}
 
-	if _, exists := policy.Hosts[hostname]; !exists {
+	if _, exists := aclPolicy.Hosts[hostname]; !exists {
 		return nil, status.Error(codes.InvalidArgument, "Hostname does not exist")
 	}
 
-	delete(policy.Hosts, hostname)
+	delete(aclPolicy.Hosts, hostname)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1113,24 +1113,24 @@ func (api headscaleV1APIServer) ACLCreateTag(
 	ctx context.Context,
 	request *v1.ACLTagRequest,
 ) (*v1.ACLTagResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	tag := "tag:" + request.GetTag()
 
-	if policy.TagOwners == nil {
-		policy.TagOwners = make(TagOwners)
+	if aclPolicy.TagOwners == nil {
+		aclPolicy.TagOwners = make(policy.TagOwners)
 	}
 
-	if _, exists := policy.TagOwners[tag]; exists {
+	if _, exists := aclPolicy.TagOwners[tag]; exists {
 		return nil, status.Error(codes.AlreadyExists, "Tag already exists")
 	}
 
-	policy.TagOwners[tag] = make([]string, 0)
+	aclPolicy.TagOwners[tag] = make([]string, 0)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1142,24 +1142,24 @@ func (api headscaleV1APIServer) ACLRemoveTag(
 	ctx context.Context,
 	request *v1.ACLTagRequest,
 ) (*v1.ACLTagResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	tag := "tag:" + request.GetTag()
 
-	if policy.TagOwners == nil {
+	if aclPolicy.TagOwners == nil {
 		return nil, status.Error(codes.InvalidArgument, "No tag exists")
 	}
 
-	if _, exists := policy.TagOwners[tag]; !exists {
+	if _, exists := aclPolicy.TagOwners[tag]; !exists {
 		return nil, status.Error(codes.InvalidArgument, "Tag does not exist")
 	}
 
-	delete(policy.TagOwners, tag)
+	delete(aclPolicy.TagOwners, tag)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1168,7 +1168,7 @@ func (api headscaleV1APIServer) ACLRemoveTag(
 
 // getACLRuleIdx returns the index of an ACL rule in a list of rules,
 // or -1 if the rule is not found.
-func getACLRuleIdx(rules []ACL, target ACL) int {
+func getACLRuleIdx(rules []policy.ACL, target policy.ACL) int {
 	slices.Sort(target.Sources)
 	slices.Sort(target.Destinations)
 
@@ -1195,7 +1195,7 @@ func getACLRuleIdx(rules []ACL, target ACL) int {
 
 // getACLRuleIdxBySrc returns the index of an ACL rule in a list of rules,
 // matching only the source, or -1 if the rule is not found.
-func getACLRuleIdxBySrc(rules []ACL, target ACL) int {
+func getACLRuleIdxBySrc(rules []policy.ACL, target policy.ACL) int {
 	slices.Sort(target.Sources)
 
 	for i, rule := range rules {
@@ -1216,7 +1216,7 @@ func getACLRuleIdxBySrc(rules []ACL, target ACL) int {
 
 // getACLRuleIdxsByDst returns the indices of ACL rules in a list of rules,
 // matching the destinations, or an empty slice if no rule is found.
-func getACLRuleIdxsByDst(rules []ACL, target ACL) []int {
+func getACLRuleIdxsByDst(rules []policy.ACL, target policy.ACL) []int {
 	slices.Sort(target.Destinations)
 	idxs := []int{}
 
@@ -1226,7 +1226,7 @@ func getACLRuleIdxsByDst(rules []ACL, target ACL) []int {
 		}
 		slices.Sort(rule.Destinations)
 		for _, dest := range target.Destinations {
-			if contains(rule.Destinations, dest) {
+			if slices.Contains(rule.Destinations, dest) {
 				idxs = append(idxs, i)
 				break
 			}
@@ -1255,12 +1255,12 @@ func (api headscaleV1APIServer) ACLCreateRule(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	newRule := ACL{
+	newRule := policy.ACL{
 		Action:       "accept",
 		Protocol:     "",
 		Sources:      request.GetSrc(),
@@ -1275,13 +1275,13 @@ func (api headscaleV1APIServer) ACLCreateRule(
 		return nil, status.Error(codes.InvalidArgument, "Destination should not be empty")
 	}
 
-	if idx := getACLRuleIdx(policy.ACLs, newRule); idx != -1 {
+	if idx := getACLRuleIdx(aclPolicy.ACLs, newRule); idx != -1 {
 		return nil, status.Error(codes.AlreadyExists, "Rule exists")
 	}
 
-	policy.ACLs = append(policy.ACLs, newRule)
+	aclPolicy.ACLs = append(aclPolicy.ACLs, newRule)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1292,26 +1292,26 @@ func (api headscaleV1APIServer) ACLRemoveRule(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	targetRule := ACL{
+	targetRule := policy.ACL{
 		Action:       "accept",
 		Protocol:     "",
 		Sources:      request.GetSrc(),
 		Destinations: request.GetDst(),
 	}
 
-	idx := getACLRuleIdx(policy.ACLs, targetRule)
+	idx := getACLRuleIdx(aclPolicy.ACLs, targetRule)
 	if idx == -1 {
 		return nil, status.Error(codes.InvalidArgument, "Rule does not exists")
 	}
 
-	policy.ACLs = slices.Delete(policy.ACLs, idx, idx+1)
+	aclPolicy.ACLs = slices.Delete(aclPolicy.ACLs, idx, idx+1)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1322,26 +1322,26 @@ func (api headscaleV1APIServer) ACLForceRemoveRule(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	targetRule := ACL{
+	targetRule := policy.ACL{
 		Action:   "accept",
 		Protocol: "",
 		Sources:  request.GetSrc(),
 	}
 
-	idx := getACLRuleIdxBySrc(policy.ACLs, targetRule)
+	idx := getACLRuleIdxBySrc(aclPolicy.ACLs, targetRule)
 	if idx == -1 {
 		// force remove, return OK even rule not exist
 		return &v1.ACLRuleResponse{}, nil
 	}
 
-	policy.ACLs = slices.Delete(policy.ACLs, idx, idx+1)
+	aclPolicy.ACLs = slices.Delete(aclPolicy.ACLs, idx, idx+1)
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1380,19 +1380,19 @@ func (api headscaleV1APIServer) ACLRuleInclude(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	targetRule := ACL{
+	targetRule := policy.ACL{
 		Action:       "accept",
 		Protocol:     "",
 		Sources:      request.GetSrc(),
 		Destinations: request.GetDst(),
 	}
 
-	idx := getACLRuleIdxBySrc(policy.ACLs, targetRule)
+	idx := getACLRuleIdxBySrc(aclPolicy.ACLs, targetRule)
 	if idx == -1 {
 		if targetRule.Sources == nil || len(targetRule.Sources) == 0 {
 			return nil, status.Error(codes.InvalidArgument, "Source should not be empty")
@@ -1400,12 +1400,12 @@ func (api headscaleV1APIServer) ACLRuleInclude(
 		if targetRule.Destinations == nil || len(targetRule.Destinations) == 0 {
 			return nil, status.Error(codes.InvalidArgument, "Destination should not be empty")
 		}
-		policy.ACLs = append(policy.ACLs, targetRule)
+		aclPolicy.ACLs = append(aclPolicy.ACLs, targetRule)
 	} else {
-		policy.ACLs[idx].Destinations = includeString(policy.ACLs[idx].Destinations, targetRule.Destinations)
+		aclPolicy.ACLs[idx].Destinations = includeString(aclPolicy.ACLs[idx].Destinations, targetRule.Destinations)
 	}
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -1416,7 +1416,7 @@ func (api headscaleV1APIServer) ACLRuleExclude(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
-	policy, err := getPendingACLConfig(api.h)
+	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -1424,51 +1424,51 @@ func (api headscaleV1APIServer) ACLRuleExclude(
 	newDests := []string{}
 
 	if len(request.GetSrc()) != 0 {
-		targetRule := ACL{
+		targetRule := policy.ACL{
 			Action:       "accept",
 			Protocol:     "",
 			Sources:      request.GetSrc(),
 			Destinations: request.GetDst(),
 		}
 
-		idx := getACLRuleIdxBySrc(policy.ACLs, targetRule)
+		idx := getACLRuleIdxBySrc(aclPolicy.ACLs, targetRule)
 		if idx == -1 {
 			return nil, status.Error(codes.InvalidArgument, "Rule does not exists")
 		}
 
-		newDests = excludeString(policy.ACLs[idx].Destinations, targetRule.Destinations)
+		newDests = excludeString(aclPolicy.ACLs[idx].Destinations, targetRule.Destinations)
 
 		if len(newDests) == 0 {
-			policy.ACLs = slices.Delete(policy.ACLs, idx, idx+1)
+			aclPolicy.ACLs = slices.Delete(aclPolicy.ACLs, idx, idx+1)
 		} else {
-			policy.ACLs[idx].Destinations = newDests
+			aclPolicy.ACLs[idx].Destinations = newDests
 		}
 
 	} else {
-		targetRule := ACL{
+		targetRule := policy.ACL{
 			Action:       "accept",
 			Protocol:     "",
 			Destinations: request.GetDst(),
 		}
 
-		idxs := getACLRuleIdxsByDst(policy.ACLs, targetRule)
+		idxs := getACLRuleIdxsByDst(aclPolicy.ACLs, targetRule)
 		if len(idxs) == 0 {
 			return nil, status.Error(codes.InvalidArgument, "Rule not found for exclude Destinations")
 		}
 
 		for i := len(idxs) - 1; i >= 0; i-- {
 			idx := idxs[i]
-			newDests = excludeString(policy.ACLs[idx].Destinations, targetRule.Destinations)
+			newDests = excludeString(aclPolicy.ACLs[idx].Destinations, targetRule.Destinations)
 
 			if len(newDests) == 0 {
-				policy.ACLs = slices.Delete(policy.ACLs, idx, idx+1)
+				aclPolicy.ACLs = slices.Delete(aclPolicy.ACLs, idx, idx+1)
 			} else {
-				policy.ACLs[idx].Destinations = newDests
+				aclPolicy.ACLs[idx].Destinations = newDests
 			}
 		}
 	}
 
-	if err = updatePendingACLConfig(api.h, policy); err != nil {
+	if err = updatePendingACLConfig(api.h, aclPolicy); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
