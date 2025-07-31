@@ -307,29 +307,29 @@ func (hsdb *HSDatabase) DeleteEphemeralNode(
 	})
 }
 
-// SetIsOnline sets a node's online status in the database.
-func SetIsOnline(tx *gorm.DB, nodeID types.NodeID, isOnline bool) error {
-	return tx.Model(&types.Node{}).Where("id = ?", nodeID).Update("is_online", isOnline).Error
-}
+// // SetIsOnline sets a node's online status in the database.
+// func SetIsOnline(tx *gorm.DB, nodeID types.NodeID, isOnline bool) error {
+// 	return tx.Model(&types.Node{}).Where("id = ?", nodeID).Update("is_online", isOnline).Error
+// }
 
-// GetIsOnline gets a node's online status from the database.
-func GetIsOnline(tx *gorm.DB, nodeID types.NodeID) (bool, error) {
-	var isOnline bool
-	err := tx.Model(&types.Node{}).
-		Select("is_online").
-		Where("id = ?", nodeID).
-		Row().
-		Scan(&isOnline)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, ErrNodeNotFound
-		}
+// // GetIsOnline gets a node's online status from the database.
+// func GetIsOnline(tx *gorm.DB, nodeID types.NodeID) (bool, error) {
+// 	var isOnline bool
+// 	err := tx.Model(&types.Node{}).
+// 		Select("is_online").
+// 		Where("id = ?", nodeID).
+// 		Row().
+// 		Scan(&isOnline)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return false, ErrNodeNotFound
+// 		}
 
-		return false, err
-	}
+// 		return false, err
+// 	}
 
-	return isOnline, nil
-}
+// 	return isOnline, nil
+// }
 
 // SetLastSeen sets a node's last seen field indicating that we
 // have recently communicating with this node.

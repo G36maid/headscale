@@ -1011,7 +1011,7 @@ func (h *Headscale) updateNotifierConnectMap() {
 	for _, node := range nodes {
 		//use db/nodes.go GetIsOnline
 		if node.IsOnlineDatabaseField.Valid {
-			onlineStatus.Store(node.ID, node.IsOnlineDatabaseField.Bool)
+			onlineStatus.Store(node.ID, *node.IsOnline)
 		} else {
 			onlineStatus.Store(node.ID, false)
 		}

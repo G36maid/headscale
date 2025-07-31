@@ -437,7 +437,7 @@ func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
 		change.LastSeen = &now
 
 		err := h.db.Write(func(tx *gorm.DB) error {
-			return db.SetLastSeen(tx, node.ID, *node.LastSeen)
+			return tx.Save(node).Error
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("Cannot update node LastSeen")
@@ -447,8 +447,9 @@ func (h *Headscale) updateNodeOnlineStatus(online bool, node *types.Node) {
 	}
 
 	err := h.db.Write(func(tx *gorm.DB) error {
-		return db.SetIsOnline(tx, node.ID, online)
+		return tx.Save(node).Error
 	})
+
 	if err != nil {
 		log.Error().Err(err).Msg("Cannot update node Online")
 
