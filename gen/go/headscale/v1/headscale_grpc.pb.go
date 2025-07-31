@@ -19,35 +19,50 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HeadscaleService_GetUser_FullMethodName          = "/headscale.v1.HeadscaleService/GetUser"
-	HeadscaleService_CreateUser_FullMethodName       = "/headscale.v1.HeadscaleService/CreateUser"
-	HeadscaleService_RenameUser_FullMethodName       = "/headscale.v1.HeadscaleService/RenameUser"
-	HeadscaleService_DeleteUser_FullMethodName       = "/headscale.v1.HeadscaleService/DeleteUser"
-	HeadscaleService_ListUsers_FullMethodName        = "/headscale.v1.HeadscaleService/ListUsers"
-	HeadscaleService_CreatePreAuthKey_FullMethodName = "/headscale.v1.HeadscaleService/CreatePreAuthKey"
-	HeadscaleService_ExpirePreAuthKey_FullMethodName = "/headscale.v1.HeadscaleService/ExpirePreAuthKey"
-	HeadscaleService_ListPreAuthKeys_FullMethodName  = "/headscale.v1.HeadscaleService/ListPreAuthKeys"
-	HeadscaleService_DebugCreateNode_FullMethodName  = "/headscale.v1.HeadscaleService/DebugCreateNode"
-	HeadscaleService_GetNode_FullMethodName          = "/headscale.v1.HeadscaleService/GetNode"
-	HeadscaleService_SetTags_FullMethodName          = "/headscale.v1.HeadscaleService/SetTags"
-	HeadscaleService_RegisterNode_FullMethodName     = "/headscale.v1.HeadscaleService/RegisterNode"
-	HeadscaleService_DeleteNode_FullMethodName       = "/headscale.v1.HeadscaleService/DeleteNode"
-	HeadscaleService_ExpireNode_FullMethodName       = "/headscale.v1.HeadscaleService/ExpireNode"
-	HeadscaleService_RenameNode_FullMethodName       = "/headscale.v1.HeadscaleService/RenameNode"
-	HeadscaleService_ListNodes_FullMethodName        = "/headscale.v1.HeadscaleService/ListNodes"
-	HeadscaleService_MoveNode_FullMethodName         = "/headscale.v1.HeadscaleService/MoveNode"
-	HeadscaleService_BackfillNodeIPs_FullMethodName  = "/headscale.v1.HeadscaleService/BackfillNodeIPs"
-	HeadscaleService_GetRoutes_FullMethodName        = "/headscale.v1.HeadscaleService/GetRoutes"
-	HeadscaleService_EnableRoute_FullMethodName      = "/headscale.v1.HeadscaleService/EnableRoute"
-	HeadscaleService_DisableRoute_FullMethodName     = "/headscale.v1.HeadscaleService/DisableRoute"
-	HeadscaleService_GetNodeRoutes_FullMethodName    = "/headscale.v1.HeadscaleService/GetNodeRoutes"
-	HeadscaleService_DeleteRoute_FullMethodName      = "/headscale.v1.HeadscaleService/DeleteRoute"
-	HeadscaleService_CreateApiKey_FullMethodName     = "/headscale.v1.HeadscaleService/CreateApiKey"
-	HeadscaleService_ExpireApiKey_FullMethodName     = "/headscale.v1.HeadscaleService/ExpireApiKey"
-	HeadscaleService_ListApiKeys_FullMethodName      = "/headscale.v1.HeadscaleService/ListApiKeys"
-	HeadscaleService_DeleteApiKey_FullMethodName     = "/headscale.v1.HeadscaleService/DeleteApiKey"
-	HeadscaleService_GetPolicy_FullMethodName        = "/headscale.v1.HeadscaleService/GetPolicy"
-	HeadscaleService_SetPolicy_FullMethodName        = "/headscale.v1.HeadscaleService/SetPolicy"
+	HeadscaleService_GetUser_FullMethodName            = "/headscale.v1.HeadscaleService/GetUser"
+	HeadscaleService_CreateUser_FullMethodName         = "/headscale.v1.HeadscaleService/CreateUser"
+	HeadscaleService_RenameUser_FullMethodName         = "/headscale.v1.HeadscaleService/RenameUser"
+	HeadscaleService_DeleteUser_FullMethodName         = "/headscale.v1.HeadscaleService/DeleteUser"
+	HeadscaleService_ListUsers_FullMethodName          = "/headscale.v1.HeadscaleService/ListUsers"
+	HeadscaleService_CreatePreAuthKey_FullMethodName   = "/headscale.v1.HeadscaleService/CreatePreAuthKey"
+	HeadscaleService_ExpirePreAuthKey_FullMethodName   = "/headscale.v1.HeadscaleService/ExpirePreAuthKey"
+	HeadscaleService_ListPreAuthKeys_FullMethodName    = "/headscale.v1.HeadscaleService/ListPreAuthKeys"
+	HeadscaleService_DebugCreateNode_FullMethodName    = "/headscale.v1.HeadscaleService/DebugCreateNode"
+	HeadscaleService_GetNode_FullMethodName            = "/headscale.v1.HeadscaleService/GetNode"
+	HeadscaleService_SetTags_FullMethodName            = "/headscale.v1.HeadscaleService/SetTags"
+	HeadscaleService_RegisterNode_FullMethodName       = "/headscale.v1.HeadscaleService/RegisterNode"
+	HeadscaleService_DeleteNode_FullMethodName         = "/headscale.v1.HeadscaleService/DeleteNode"
+	HeadscaleService_ExpireNode_FullMethodName         = "/headscale.v1.HeadscaleService/ExpireNode"
+	HeadscaleService_RenameNode_FullMethodName         = "/headscale.v1.HeadscaleService/RenameNode"
+	HeadscaleService_ListNodes_FullMethodName          = "/headscale.v1.HeadscaleService/ListNodes"
+	HeadscaleService_MoveNode_FullMethodName           = "/headscale.v1.HeadscaleService/MoveNode"
+	HeadscaleService_BackfillNodeIPs_FullMethodName    = "/headscale.v1.HeadscaleService/BackfillNodeIPs"
+	HeadscaleService_GetRoutes_FullMethodName          = "/headscale.v1.HeadscaleService/GetRoutes"
+	HeadscaleService_EnableRoute_FullMethodName        = "/headscale.v1.HeadscaleService/EnableRoute"
+	HeadscaleService_DisableRoute_FullMethodName       = "/headscale.v1.HeadscaleService/DisableRoute"
+	HeadscaleService_GetNodeRoutes_FullMethodName      = "/headscale.v1.HeadscaleService/GetNodeRoutes"
+	HeadscaleService_DeleteRoute_FullMethodName        = "/headscale.v1.HeadscaleService/DeleteRoute"
+	HeadscaleService_CreateApiKey_FullMethodName       = "/headscale.v1.HeadscaleService/CreateApiKey"
+	HeadscaleService_ExpireApiKey_FullMethodName       = "/headscale.v1.HeadscaleService/ExpireApiKey"
+	HeadscaleService_ListApiKeys_FullMethodName        = "/headscale.v1.HeadscaleService/ListApiKeys"
+	HeadscaleService_DeleteApiKey_FullMethodName       = "/headscale.v1.HeadscaleService/DeleteApiKey"
+	HeadscaleService_GetPolicy_FullMethodName          = "/headscale.v1.HeadscaleService/GetPolicy"
+	HeadscaleService_SetPolicy_FullMethodName          = "/headscale.v1.HeadscaleService/SetPolicy"
+	HeadscaleService_ACLCreateGroup_FullMethodName     = "/headscale.v1.HeadscaleService/ACLCreateGroup"
+	HeadscaleService_ACLGroupAddUser_FullMethodName    = "/headscale.v1.HeadscaleService/ACLGroupAddUser"
+	HeadscaleService_ACLGroupRemoveUser_FullMethodName = "/headscale.v1.HeadscaleService/ACLGroupRemoveUser"
+	HeadscaleService_ACLRemoveGroup_FullMethodName     = "/headscale.v1.HeadscaleService/ACLRemoveGroup"
+	HeadscaleService_ACLBindHostname_FullMethodName    = "/headscale.v1.HeadscaleService/ACLBindHostname"
+	HeadscaleService_ACLUpdateHostname_FullMethodName  = "/headscale.v1.HeadscaleService/ACLUpdateHostname"
+	HeadscaleService_ACLRemoveHostname_FullMethodName  = "/headscale.v1.HeadscaleService/ACLRemoveHostname"
+	HeadscaleService_ACLCreateTag_FullMethodName       = "/headscale.v1.HeadscaleService/ACLCreateTag"
+	HeadscaleService_ACLRemoveTag_FullMethodName       = "/headscale.v1.HeadscaleService/ACLRemoveTag"
+	HeadscaleService_ACLCreateRule_FullMethodName      = "/headscale.v1.HeadscaleService/ACLCreateRule"
+	HeadscaleService_ACLRemoveRule_FullMethodName      = "/headscale.v1.HeadscaleService/ACLRemoveRule"
+	HeadscaleService_ACLForceRemoveRule_FullMethodName = "/headscale.v1.HeadscaleService/ACLForceRemoveRule"
+	HeadscaleService_ACLRuleInclude_FullMethodName     = "/headscale.v1.HeadscaleService/ACLRuleInclude"
+	HeadscaleService_ACLRuleExclude_FullMethodName     = "/headscale.v1.HeadscaleService/ACLRuleExclude"
+	HeadscaleService_ACLCtrl_FullMethodName            = "/headscale.v1.HeadscaleService/ACLCtrl"
 )
 
 // HeadscaleServiceClient is the client API for HeadscaleService service.
@@ -89,6 +104,22 @@ type HeadscaleServiceClient interface {
 	// --- Policy start ---
 	GetPolicy(ctx context.Context, in *GetPolicyRequest, opts ...grpc.CallOption) (*GetPolicyResponse, error)
 	SetPolicy(ctx context.Context, in *SetPolicyRequest, opts ...grpc.CallOption) (*SetPolicyResponse, error)
+	// --- ACL start ---
+	ACLCreateGroup(ctx context.Context, in *ACLGroupRequest, opts ...grpc.CallOption) (*ACLGroupResponse, error)
+	ACLGroupAddUser(ctx context.Context, in *ACLGroupUserRequest, opts ...grpc.CallOption) (*ACLGroupUserResponse, error)
+	ACLGroupRemoveUser(ctx context.Context, in *ACLGroupUserRequest, opts ...grpc.CallOption) (*ACLGroupUserResponse, error)
+	ACLRemoveGroup(ctx context.Context, in *ACLGroupRequest, opts ...grpc.CallOption) (*ACLGroupResponse, error)
+	ACLBindHostname(ctx context.Context, in *ACLHostnameRequest, opts ...grpc.CallOption) (*ACLHostnameResponse, error)
+	ACLUpdateHostname(ctx context.Context, in *ACLHostnameRequest, opts ...grpc.CallOption) (*ACLHostnameResponse, error)
+	ACLRemoveHostname(ctx context.Context, in *ACLHostnameRequest, opts ...grpc.CallOption) (*ACLHostnameResponse, error)
+	ACLCreateTag(ctx context.Context, in *ACLTagRequest, opts ...grpc.CallOption) (*ACLTagResponse, error)
+	ACLRemoveTag(ctx context.Context, in *ACLTagRequest, opts ...grpc.CallOption) (*ACLTagResponse, error)
+	ACLCreateRule(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error)
+	ACLRemoveRule(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error)
+	ACLForceRemoveRule(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error)
+	ACLRuleInclude(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error)
+	ACLRuleExclude(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error)
+	ACLCtrl(ctx context.Context, in *ACLCtrlRequest, opts ...grpc.CallOption) (*ACLCtrlResponse, error)
 }
 
 type headscaleServiceClient struct {
@@ -389,6 +420,156 @@ func (c *headscaleServiceClient) SetPolicy(ctx context.Context, in *SetPolicyReq
 	return out, nil
 }
 
+func (c *headscaleServiceClient) ACLCreateGroup(ctx context.Context, in *ACLGroupRequest, opts ...grpc.CallOption) (*ACLGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLGroupResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLCreateGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLGroupAddUser(ctx context.Context, in *ACLGroupUserRequest, opts ...grpc.CallOption) (*ACLGroupUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLGroupUserResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLGroupAddUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLGroupRemoveUser(ctx context.Context, in *ACLGroupUserRequest, opts ...grpc.CallOption) (*ACLGroupUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLGroupUserResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLGroupRemoveUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLRemoveGroup(ctx context.Context, in *ACLGroupRequest, opts ...grpc.CallOption) (*ACLGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLGroupResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLRemoveGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLBindHostname(ctx context.Context, in *ACLHostnameRequest, opts ...grpc.CallOption) (*ACLHostnameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLHostnameResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLBindHostname_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLUpdateHostname(ctx context.Context, in *ACLHostnameRequest, opts ...grpc.CallOption) (*ACLHostnameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLHostnameResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLUpdateHostname_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLRemoveHostname(ctx context.Context, in *ACLHostnameRequest, opts ...grpc.CallOption) (*ACLHostnameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLHostnameResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLRemoveHostname_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLCreateTag(ctx context.Context, in *ACLTagRequest, opts ...grpc.CallOption) (*ACLTagResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLTagResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLCreateTag_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLRemoveTag(ctx context.Context, in *ACLTagRequest, opts ...grpc.CallOption) (*ACLTagResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLTagResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLRemoveTag_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLCreateRule(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLRuleResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLCreateRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLRemoveRule(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLRuleResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLRemoveRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLForceRemoveRule(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLRuleResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLForceRemoveRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLRuleInclude(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLRuleResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLRuleInclude_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLRuleExclude(ctx context.Context, in *ACLRuleRequest, opts ...grpc.CallOption) (*ACLRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLRuleResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLRuleExclude_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) ACLCtrl(ctx context.Context, in *ACLCtrlRequest, opts ...grpc.CallOption) (*ACLCtrlResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ACLCtrlResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_ACLCtrl_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HeadscaleServiceServer is the server API for HeadscaleService service.
 // All implementations must embed UnimplementedHeadscaleServiceServer
 // for forward compatibility.
@@ -428,6 +609,22 @@ type HeadscaleServiceServer interface {
 	// --- Policy start ---
 	GetPolicy(context.Context, *GetPolicyRequest) (*GetPolicyResponse, error)
 	SetPolicy(context.Context, *SetPolicyRequest) (*SetPolicyResponse, error)
+	// --- ACL start ---
+	ACLCreateGroup(context.Context, *ACLGroupRequest) (*ACLGroupResponse, error)
+	ACLGroupAddUser(context.Context, *ACLGroupUserRequest) (*ACLGroupUserResponse, error)
+	ACLGroupRemoveUser(context.Context, *ACLGroupUserRequest) (*ACLGroupUserResponse, error)
+	ACLRemoveGroup(context.Context, *ACLGroupRequest) (*ACLGroupResponse, error)
+	ACLBindHostname(context.Context, *ACLHostnameRequest) (*ACLHostnameResponse, error)
+	ACLUpdateHostname(context.Context, *ACLHostnameRequest) (*ACLHostnameResponse, error)
+	ACLRemoveHostname(context.Context, *ACLHostnameRequest) (*ACLHostnameResponse, error)
+	ACLCreateTag(context.Context, *ACLTagRequest) (*ACLTagResponse, error)
+	ACLRemoveTag(context.Context, *ACLTagRequest) (*ACLTagResponse, error)
+	ACLCreateRule(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error)
+	ACLRemoveRule(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error)
+	ACLForceRemoveRule(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error)
+	ACLRuleInclude(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error)
+	ACLRuleExclude(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error)
+	ACLCtrl(context.Context, *ACLCtrlRequest) (*ACLCtrlResponse, error)
 	mustEmbedUnimplementedHeadscaleServiceServer()
 }
 
@@ -524,6 +721,51 @@ func (UnimplementedHeadscaleServiceServer) GetPolicy(context.Context, *GetPolicy
 }
 func (UnimplementedHeadscaleServiceServer) SetPolicy(context.Context, *SetPolicyRequest) (*SetPolicyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPolicy not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLCreateGroup(context.Context, *ACLGroupRequest) (*ACLGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLCreateGroup not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLGroupAddUser(context.Context, *ACLGroupUserRequest) (*ACLGroupUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLGroupAddUser not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLGroupRemoveUser(context.Context, *ACLGroupUserRequest) (*ACLGroupUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLGroupRemoveUser not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLRemoveGroup(context.Context, *ACLGroupRequest) (*ACLGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLRemoveGroup not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLBindHostname(context.Context, *ACLHostnameRequest) (*ACLHostnameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLBindHostname not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLUpdateHostname(context.Context, *ACLHostnameRequest) (*ACLHostnameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLUpdateHostname not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLRemoveHostname(context.Context, *ACLHostnameRequest) (*ACLHostnameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLRemoveHostname not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLCreateTag(context.Context, *ACLTagRequest) (*ACLTagResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLCreateTag not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLRemoveTag(context.Context, *ACLTagRequest) (*ACLTagResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLRemoveTag not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLCreateRule(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLCreateRule not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLRemoveRule(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLRemoveRule not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLForceRemoveRule(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLForceRemoveRule not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLRuleInclude(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLRuleInclude not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLRuleExclude(context.Context, *ACLRuleRequest) (*ACLRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLRuleExclude not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) ACLCtrl(context.Context, *ACLCtrlRequest) (*ACLCtrlResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ACLCtrl not implemented")
 }
 func (UnimplementedHeadscaleServiceServer) mustEmbedUnimplementedHeadscaleServiceServer() {}
 func (UnimplementedHeadscaleServiceServer) testEmbeddedByValue()                          {}
@@ -1068,6 +1310,276 @@ func _HeadscaleService_SetPolicy_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HeadscaleService_ACLCreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLCreateGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLCreateGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLCreateGroup(ctx, req.(*ACLGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLGroupAddUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLGroupUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLGroupAddUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLGroupAddUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLGroupAddUser(ctx, req.(*ACLGroupUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLGroupRemoveUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLGroupUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLGroupRemoveUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLGroupRemoveUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLGroupRemoveUser(ctx, req.(*ACLGroupUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLRemoveGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLRemoveGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLRemoveGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLRemoveGroup(ctx, req.(*ACLGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLBindHostname_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLHostnameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLBindHostname(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLBindHostname_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLBindHostname(ctx, req.(*ACLHostnameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLUpdateHostname_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLHostnameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLUpdateHostname(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLUpdateHostname_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLUpdateHostname(ctx, req.(*ACLHostnameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLRemoveHostname_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLHostnameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLRemoveHostname(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLRemoveHostname_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLRemoveHostname(ctx, req.(*ACLHostnameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLCreateTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLTagRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLCreateTag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLCreateTag_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLCreateTag(ctx, req.(*ACLTagRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLRemoveTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLTagRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLRemoveTag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLRemoveTag_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLRemoveTag(ctx, req.(*ACLTagRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLCreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLCreateRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLCreateRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLCreateRule(ctx, req.(*ACLRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLRemoveRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLRemoveRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLRemoveRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLRemoveRule(ctx, req.(*ACLRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLForceRemoveRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLForceRemoveRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLForceRemoveRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLForceRemoveRule(ctx, req.(*ACLRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLRuleInclude_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLRuleInclude(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLRuleInclude_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLRuleInclude(ctx, req.(*ACLRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLRuleExclude_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLRuleExclude(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLRuleExclude_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLRuleExclude(ctx, req.(*ACLRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_ACLCtrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ACLCtrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).ACLCtrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_ACLCtrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).ACLCtrl(ctx, req.(*ACLCtrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HeadscaleService_ServiceDesc is the grpc.ServiceDesc for HeadscaleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1190,6 +1702,66 @@ var HeadscaleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetPolicy",
 			Handler:    _HeadscaleService_SetPolicy_Handler,
+		},
+		{
+			MethodName: "ACLCreateGroup",
+			Handler:    _HeadscaleService_ACLCreateGroup_Handler,
+		},
+		{
+			MethodName: "ACLGroupAddUser",
+			Handler:    _HeadscaleService_ACLGroupAddUser_Handler,
+		},
+		{
+			MethodName: "ACLGroupRemoveUser",
+			Handler:    _HeadscaleService_ACLGroupRemoveUser_Handler,
+		},
+		{
+			MethodName: "ACLRemoveGroup",
+			Handler:    _HeadscaleService_ACLRemoveGroup_Handler,
+		},
+		{
+			MethodName: "ACLBindHostname",
+			Handler:    _HeadscaleService_ACLBindHostname_Handler,
+		},
+		{
+			MethodName: "ACLUpdateHostname",
+			Handler:    _HeadscaleService_ACLUpdateHostname_Handler,
+		},
+		{
+			MethodName: "ACLRemoveHostname",
+			Handler:    _HeadscaleService_ACLRemoveHostname_Handler,
+		},
+		{
+			MethodName: "ACLCreateTag",
+			Handler:    _HeadscaleService_ACLCreateTag_Handler,
+		},
+		{
+			MethodName: "ACLRemoveTag",
+			Handler:    _HeadscaleService_ACLRemoveTag_Handler,
+		},
+		{
+			MethodName: "ACLCreateRule",
+			Handler:    _HeadscaleService_ACLCreateRule_Handler,
+		},
+		{
+			MethodName: "ACLRemoveRule",
+			Handler:    _HeadscaleService_ACLRemoveRule_Handler,
+		},
+		{
+			MethodName: "ACLForceRemoveRule",
+			Handler:    _HeadscaleService_ACLForceRemoveRule_Handler,
+		},
+		{
+			MethodName: "ACLRuleInclude",
+			Handler:    _HeadscaleService_ACLRuleInclude_Handler,
+		},
+		{
+			MethodName: "ACLRuleExclude",
+			Handler:    _HeadscaleService_ACLRuleExclude_Handler,
+		},
+		{
+			MethodName: "ACLCtrl",
+			Handler:    _HeadscaleService_ACLCtrl_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
