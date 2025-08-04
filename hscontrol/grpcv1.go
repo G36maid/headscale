@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/netip"
 	"os"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
@@ -815,7 +816,7 @@ func copyACLConfig(dst, src string) error {
 func getPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
 
 	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
-	pendingPolicyPath := inUsedPolicyPath + "/.acl.json"
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
 	if _, err := os.Stat(pendingPolicyPath); errors.Is(err, os.ErrNotExist) {
 		err = copyACLConfig(pendingPolicyPath, inUsedPolicyPath)
 		if err != nil {
@@ -829,7 +830,7 @@ func getPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
 // updatePendingACLConfig updates the pending ACL configuration with the provided policy.
 func updatePendingACLConfig(h *Headscale, policy *policy.ACLPolicy) error {
 	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
-	pendingPolicyPath := inUsedPolicyPath + "/.acl.json"
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
 	pendingFile, err := os.Create(pendingPolicyPath)
 	if err != nil {
 		return err
@@ -843,7 +844,7 @@ func updatePendingACLConfig(h *Headscale, policy *policy.ACLPolicy) error {
 // reloadPendingACLConfig reloads the pending ACL configuration.
 func reloadPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
 	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
-	pendingPolicyPath := inUsedPolicyPath + "/.acl.json"
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
 	if _, err := os.Stat(pendingPolicyPath); errors.Is(err, os.ErrNotExist) {
 		return nil, err
 	}
@@ -854,14 +855,12 @@ func reloadPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
 
 	h.setLastStateChangeToNow()
 	return policy.LoadACLPolicyFromPath(pendingPolicyPath)
-	// reloadPendingACLConfig reloads the pending ACL configuration.
-
 }
 
 // discardPendingACLConfig discards the pending ACL configuration.
 func discardPendingACLConfig(h *Headscale) error {
 	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
-	pendingPolicyPath := inUsedPolicyPath + "/.acl.json"
+	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
 
 	return os.Remove(pendingPolicyPath)
 }
