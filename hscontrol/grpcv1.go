@@ -870,6 +870,9 @@ func (api headscaleV1APIServer) ACLCreateGroup(
 	_ context.Context,
 	request *v1.ACLGroupRequest,
 ) (*v1.ACLGroupResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -899,6 +902,10 @@ func (api headscaleV1APIServer) ACLGroupAddUser(
 	ctx context.Context,
 	request *v1.ACLGroupUserRequest,
 ) (*v1.ACLGroupUserResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
+
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -933,6 +940,10 @@ func (api headscaleV1APIServer) ACLGroupRemoveUser(
 	ctx context.Context,
 	request *v1.ACLGroupUserRequest,
 ) (*v1.ACLGroupUserResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
+
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -969,6 +980,9 @@ func (api headscaleV1APIServer) ACLRemoveGroup(
 	ctx context.Context,
 	request *v1.ACLGroupRequest,
 ) (*v1.ACLGroupResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -998,6 +1012,9 @@ func (api headscaleV1APIServer) ACLBindHostname(
 	ctx context.Context,
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1040,6 +1057,9 @@ func (api headscaleV1APIServer) ACLUpdateHostname(
 	ctx context.Context,
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1082,6 +1102,9 @@ func (api headscaleV1APIServer) ACLRemoveHostname(
 	ctx context.Context,
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1112,6 +1135,9 @@ func (api headscaleV1APIServer) ACLCreateTag(
 	ctx context.Context,
 	request *v1.ACLTagRequest,
 ) (*v1.ACLTagResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1141,6 +1167,9 @@ func (api headscaleV1APIServer) ACLRemoveTag(
 	ctx context.Context,
 	request *v1.ACLTagRequest,
 ) (*v1.ACLTagResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1254,6 +1283,9 @@ func (api headscaleV1APIServer) ACLCreateRule(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1291,6 +1323,9 @@ func (api headscaleV1APIServer) ACLRemoveRule(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1321,6 +1356,9 @@ func (api headscaleV1APIServer) ACLForceRemoveRule(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1379,6 +1417,9 @@ func (api headscaleV1APIServer) ACLRuleInclude(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1415,6 +1456,9 @@ func (api headscaleV1APIServer) ACLRuleExclude(
 	ctx context.Context,
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -1478,6 +1522,9 @@ func (api headscaleV1APIServer) ACLCtrl(
 	ctx context.Context,
 	request *v1.ACLCtrlRequest,
 ) (*v1.ACLCtrlResponse, error) {
+	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
+		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+	}
 	action := request.GetAction()
 
 	switch action {
