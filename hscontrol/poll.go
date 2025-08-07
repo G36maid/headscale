@@ -513,7 +513,7 @@ func (m *mapSession) handleEndpointUpdate() {
 	// hostinfo and let the function continue.
 	if routesChanged {
 		var err error
-		_, err = m.h.db.SaveNodeRoutes(m.node)
+		err = m.h.SaveNodeRoutesWithCache(m.node)
 		if err != nil {
 			m.errf(err, "Error processing node routes")
 			http.Error(m.w, "", http.StatusInternalServerError)
@@ -603,7 +603,7 @@ func (m *mapSession) handleSaveNode() error {
 	// hostinfo and let the function continue.
 	if routesChanged {
 		var err error
-		_, err = m.h.db.SaveNodeRoutes(m.node)
+		err = m.h.SaveNodeRoutesWithCache(m.node)
 		if err != nil {
 			return err
 		}
