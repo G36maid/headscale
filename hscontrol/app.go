@@ -105,6 +105,11 @@ type Headscale struct {
 
 	registrationCache *cache.Cache
 
+	peersCache       types.Nodes
+	peersCacheMutex  sync.RWMutex
+	routesCache      types.Routes
+	routesCacheMutex sync.RWMutex
+
 	pollNetMapStreamWG sync.WaitGroup
 }
 
@@ -985,11 +990,10 @@ func (h *Headscale) syncLastStateChangeFromDB() {
 		// nodify all clients
 		*/
 
-		//ACL policy update
-		h.loadACLPolicy()
-
-		//update nodeNotifier connect map
-		h.updateNotifierConnectMap()
+		h.loadACLPolicy()            //ACL policy update
+		h.updatePeersCache()         // peersCache update
+		h.updateRoutesCache()        // routesCache update
+		h.updateNotifierConnectMap() //update nodeNotifier connect map
 
 		ctx := types.NotifyCtx(context.Background(), "sync-DB-update", "na")
 		h.nodeNotifier.NotifyAll(ctx, types.StateUpdate{
@@ -1157,7 +1161,7 @@ func (h *Headscale) loadACLPolicy() error {
 				return fmt.Errorf("verifying SSH rules: %w", err)
 			}
 
-			h.setLastStateChangeToNow()
+			//h.setLastStateChangeToNow()
 
 		}
 

@@ -17,11 +17,11 @@ var (
 type Route struct {
 	gorm.Model
 
-	NodeID uint64
+	NodeID uint64 `gorm:"uniqueIndex:routes_machine_id_prefix_key"`
 	Node   Node
 
 	// TODO(kradalby): change this custom type to netip.Prefix
-	Prefix IPPrefix
+	Prefix IPPrefix `gorm:"uniqueIndex:routes_machine_id_prefix_key"`
 
 	Advertised bool
 	Enabled    bool
