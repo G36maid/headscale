@@ -189,6 +189,115 @@ func GetNodeByAnyKey(
 	return &node, nil
 }
 
+// GetNodeByAuthKeyAndHostname finds a Node by its AuthKey and Hostname, and returns the Node struct.
+func (hsdb *HSDatabase) GetNodeByAuthKeyAndHostname(
+	authKey string,
+	hostname string,
+) (*types.Node, error) {
+	return Read(hsdb.DB, func(rx *gorm.DB) (*types.Node, error) {
+		return GetNodeByAuthKeyAndHostname(rx, authKey, hostname)
+	})
+}
+
+// GetNodeByAuthKeyAndHostname finds a Node by its AuthKey and Hostname, and returns the Node struct.
+func GetNodeByAuthKeyAndHostname(
+	tx *gorm.DB,
+	authKey string,
+	hostname string,
+) (*types.Node, error) {
+	node := types.Node{}
+	if result := tx.
+		Preload("AuthKey").
+		Preload("AuthKey.User").
+		Preload("User").
+		Preload("Routes").
+		First(&node, "hostname = ?", hostname); result.Error != nil {
+		return nil, result.Error
+	}
+
+	if node.AuthKey.Key == authKey {
+		return &node, nil
+	}
+
+	return nil, ErrNodeNotFound
+}
+
+// GetNodeByAnyKeyAndAuthKeyAndHostname finds a Node by any key first, then falls back to auth key and hostname.
+// Returns the node, a boolean indicating if fallback was used, and an error.
+func (hsdb *HSDatabase) GetNodeByAnyKeyAndAuthKeyAndHostname(
+	machineKey key.MachinePublic,
+	nodeKey key.NodePublic,
+	oldNodeKey key.NodePublic,
+	authKey string,
+	hostname string,
+) (*types.Node, bool, error) {
+	node, fallbackUsed, err := GetNodeByAnyKeyAndAuthKeyAndHostname(hsdb.DB, machineKey, nodeKey, oldNodeKey, authKey, hostname)
+	return node, fallbackUsed, err
+}
+
+// GetNodeByAnyKeyAndAuthKeyAndHostname finds a Node by any key first, then falls back to auth key and hostname.
+// Returns the node, a boolean indicating if fallback was used, and an error.
+func GetNodeByAnyKeyAndAuthKeyAndHostname(
+	tx *gorm.DB,
+	machineKey key.MachinePublic,
+	nodeKey key.NodePublic,
+	oldNodeKey key.NodePublic,
+	authKey string,
+	hostname string,
+) (*types.Node, bool, error) {
+	// First try to find by any key
+	node, err := GetNodeByAnyKey(tx, machineKey, nodeKey, oldNodeKey)
+	if err == nil {
+		return node, false, nil
+	}
+
+	// Fallback to authKey + hostname
+	node, err = GetNodeByAuthKeyAndHostname(tx, authKey, hostname)
+	if err == nil {
+		return node, true, nil
+	}
+
+	return nil, false, err
+}
+
+/*
+// GetMachineByPreAuthKeyAndHostname finds a Machine by its PreAuthKey And Hostname, and returns the Machine struct.
+func (h *Headscale) GetMachineByAuthKeyAndHostname(
+	authKey string, hostname string,
+) (*Machine, error) {
+	machine := Machine{}
+
+	if result := h.db.Preload("AuthKey").Preload("AuthKey.User").Preload("User").First(&machine, "hostname = ? ", hostname); result.Error != nil {
+		return nil, result.Error
+	}
+
+	if machine.AuthKey.Key == authKey {
+
+		return &machine, nil
+	} else {
+
+		return nil, gorm.ErrRecordNotFound
+	}
+}
+
+func (h *Headscale) GetMachineByAnyKeyAndAuthKeyAndHostname(
+	machineKey key.MachinePublic, nodeKey key.NodePublic, oldNodeKey key.NodePublic, authKey string, hostname string,
+) (*Machine, bool, error) {
+	machine, err := h.GetMachineByAnyKey(machineKey, nodeKey, oldNodeKey)
+	if err == nil {
+		return machine, false, nil
+	}
+
+	// Fallback to authKey + hostname
+	machine, err = h.GetMachineByAuthKeyAndHostname(authKey, hostname)
+	if err == nil {
+		return machine, true, nil
+	}
+
+	return nil, false, err
+}
+*/
+
 func (hsdb *HSDatabase) SetTags(
 	nodeID types.NodeID,
 	tags []string,

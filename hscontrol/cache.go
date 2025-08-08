@@ -8,7 +8,6 @@ import (
 	"github.com/juanfont/headscale/hscontrol/types"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
-	"tailscale.com/types/key"
 )
 
 func (h *Headscale) updateRoutesCache() {
@@ -100,51 +99,6 @@ func (h *Headscale) getPeersCache(pickoutNode *types.Node) types.Nodes {
 	return h.peersCache
 }
 
-// GetNodesByAuthKeyIds finds a Node by AuthKeyIds and returns the Node struct.
-func (h *Headscale) GetNodesByAuthKeyIds(authKeyIds []uint64) ([]*types.Node, error) {
-	m := []*types.Node{}
-	if result := h.db.DB.Where("auth_key_id IN (?)", authKeyIds).Find(&m); result.Error != nil {
-		return nil, result.Error
-	}
-
-	return m, nil
-}
-
-// GetNodeByPreAuthKeyAndHostname finds a Node by its PreAuthKey And Hostname, and returns the Node struct.
-func (h *Headscale) GetNodeByAuthKeyAndHostname(
-	authKey string, hostname string,
-) (*types.Node, error) {
-	node := types.Node{}
-
-	if result := h.db.DB.Preload("AuthKey").Preload("AuthKey.User").Preload("User").First(&node, "hostname = ? ", hostname); result.Error != nil {
-		return nil, result.Error
-	}
-
-	if node.AuthKey.Key == authKey {
-
-		return &node, nil
-	} else {
-
-		return nil, gorm.ErrRecordNotFound
-	}
-}
-
-func (h *Headscale) GetNodeByAnyKeyAndAuthKeyAndHostname(
-	machineKey key.MachinePublic, nodeKey key.NodePublic, oldNodeKey key.NodePublic, authKey string, hostname string,
-) (*types.Node, bool, error) {
-	node, err := h.db.GetNodeByAnyKey(machineKey, nodeKey, oldNodeKey)
-	if err == nil {
-		return node, false, nil
-	}
-
-	// Fallback to authKey + hostname
-	node, err = h.GetNodeByAuthKeyAndHostname(authKey, hostname)
-	if err == nil {
-		return node, true, nil
-	}
-
-	return nil, false, err
-}
 func removePrefix(slice []netip.Prefix, tv netip.Prefix) []netip.Prefix {
 	for i, v := range slice {
 		if v == tv {

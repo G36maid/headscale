@@ -69,7 +69,15 @@ func (h *Headscale) handleRegister(
 	logInfo, logTrace, _ := logAuthFunc(regReq, machineKey)
 	now := time.Now().UTC()
 	logTrace("handleRegister called, looking up machine in DB")
-	node, err := h.db.GetNodeByAnyKey(machineKey, regReq.NodeKey, regReq.OldNodeKey)
+	//node, err := h.db.GetNodeByAnyKey(machineKey, regReq.NodeKey, regReq.OldNodeKey)
+
+	node, foundByFallback, err := h.db.GetNodeByAnyKeyAndAuthKeyAndHostname(
+		machineKey,
+		regReq.NodeKey,
+		regReq.OldNodeKey,
+		regReq.Auth.AuthKey,
+		regReq.Hostinfo.Hostname)
+
 	logTrace("handleRegister database lookup has returned")
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// If the node has AuthKey set, handle registration via PreAuthKeys
@@ -138,6 +146,56 @@ func (h *Headscale) handleRegister(
 	// - We are doing a key refresh
 	// - The node is logged out (or expired) and pending to be authorized. TODO(juan): We need to keep alive the connection here
 	if node != nil {
+		if foundByFallback {
+			if !regReq.Expiry.IsZero() && regReq.Expiry.UTC().Before(now) {
+				// Logout request but NodeKey not match
+				// resoponse OK but do nothing
+				resp := tailcfg.RegisterResponse{}
+				resp.AuthURL = ""
+				resp.MachineAuthorized = false
+				resp.NodeKeyExpired = true
+				resp.User = *node.User.TailscaleUser()
+				respBody, err := json.Marshal(resp)
+				if err != nil {
+					log.Error().
+						Caller().
+						Err(err).
+						Msg("Cannot encode message")
+					http.Error(writer, "Internal server error", http.StatusInternalServerError)
+				} else {
+					writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+					writer.WriteHeader(http.StatusOK)
+					_, err = writer.Write(respBody)
+					if err != nil {
+						log.Error().
+							Caller().
+							Err(err).
+							Msg("Failed to write response")
+					}
+				}
+				return
+			} else {
+				if node.Hostname == node.User.Name && !node.IsExpired() {
+					// Client and Not Logout
+					// Deined the Register Request
+					resp := tailcfg.RegisterResponse{}
+					resp.MachineAuthorized = false
+					respBody, err := json.Marshal(resp)
+
+					writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+					writer.WriteHeader(http.StatusForbidden)
+					_, err = writer.Write(respBody)
+					if err != nil {
+						log.Error().
+							Caller().
+							Err(err).
+							Msg("Failed to write response")
+					}
+					return
+				}
+			}
+		}
+
 		// (juan): For a while we had a bug where we were not storing the MachineKey for the nodes using the TS2021,
 		// due to a misunderstanding of the protocol https://github.com/juanfont/headscale/issues/1054
 		// So if we have a not valid MachineKey (but we were able to fetch the node with the NodeKeys), we update it.
@@ -296,12 +354,24 @@ func (h *Headscale) handleAuthKey(
 	// The error is not important, because if it does not
 	// exist, then this is a new node and we will move
 	// on to registration.
-	node, _ := h.db.GetNodeByAnyKey(machineKey, registerRequest.NodeKey, registerRequest.OldNodeKey)
+	//ode, _ := h.db.GetNodeByAnyKey(machineKey, registerRequest.NodeKey, registerRequest.OldNodeKey)
+	node, foundByFallback, err := h.db.GetNodeByAnyKeyAndAuthKeyAndHostname(
+		machineKey,
+		registerRequest.NodeKey,
+		registerRequest.OldNodeKey,
+		registerRequest.Auth.AuthKey,
+		registerRequest.Hostinfo.Hostname)
+
 	if node != nil {
 		log.Trace().
 			Caller().
 			Str("node", node.Hostname).
 			Msg("node was already registered before, refreshing with new auth key")
+
+		if foundByFallback {
+			node.MachineKey = machineKey
+			//MachinePublicKeyStripPrefix(machineKey)
+		}
 
 		node.NodeKey = nodeKey
 		if pak.ID != 0 {
