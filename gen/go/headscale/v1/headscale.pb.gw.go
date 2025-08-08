@@ -305,6 +305,60 @@ func local_request_HeadscaleService_ListPreAuthKeys_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
+func request_HeadscaleService_LockPreAuthKeyTagLock_0(ctx context.Context, marshaler runtime.Marshaler, client HeadscaleServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq PreAuthKeyTagLockRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.LockPreAuthKeyTagLock(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_HeadscaleService_LockPreAuthKeyTagLock_0(ctx context.Context, marshaler runtime.Marshaler, server HeadscaleServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq PreAuthKeyTagLockRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.LockPreAuthKeyTagLock(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_HeadscaleService_UnlockPreAuthKeyTagLock_0(ctx context.Context, marshaler runtime.Marshaler, client HeadscaleServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq PreAuthKeyTagLockRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.UnlockPreAuthKeyTagLock(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_HeadscaleService_UnlockPreAuthKeyTagLock_0(ctx context.Context, marshaler runtime.Marshaler, server HeadscaleServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq PreAuthKeyTagLockRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.UnlockPreAuthKeyTagLock(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_HeadscaleService_DebugCreateNode_0(ctx context.Context, marshaler runtime.Marshaler, client HeadscaleServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DebugCreateNodeRequest
@@ -1795,6 +1849,46 @@ func RegisterHeadscaleServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 		forward_HeadscaleService_ListPreAuthKeys_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_HeadscaleService_LockPreAuthKeyTagLock_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/headscale.v1.HeadscaleService/LockPreAuthKeyTagLock", runtime.WithHTTPPathPattern("/api/v1/preauthkey/lock"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_HeadscaleService_LockPreAuthKeyTagLock_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_HeadscaleService_LockPreAuthKeyTagLock_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_HeadscaleService_UnlockPreAuthKeyTagLock_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/headscale.v1.HeadscaleService/UnlockPreAuthKeyTagLock", runtime.WithHTTPPathPattern("/api/v1/preauthkey/unlock"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_HeadscaleService_UnlockPreAuthKeyTagLock_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_HeadscaleService_UnlockPreAuthKeyTagLock_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_HeadscaleService_DebugCreateNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -2691,6 +2785,40 @@ func RegisterHeadscaleServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 		forward_HeadscaleService_ListPreAuthKeys_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_HeadscaleService_LockPreAuthKeyTagLock_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/headscale.v1.HeadscaleService/LockPreAuthKeyTagLock", runtime.WithHTTPPathPattern("/api/v1/preauthkey/lock"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_HeadscaleService_LockPreAuthKeyTagLock_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_HeadscaleService_LockPreAuthKeyTagLock_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_HeadscaleService_UnlockPreAuthKeyTagLock_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/headscale.v1.HeadscaleService/UnlockPreAuthKeyTagLock", runtime.WithHTTPPathPattern("/api/v1/preauthkey/unlock"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_HeadscaleService_UnlockPreAuthKeyTagLock_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_HeadscaleService_UnlockPreAuthKeyTagLock_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_HeadscaleService_DebugCreateNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -3307,95 +3435,99 @@ func RegisterHeadscaleServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_HeadscaleService_GetUser_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "user", "name"}, ""))
-	pattern_HeadscaleService_CreateUser_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "user"}, ""))
-	pattern_HeadscaleService_RenameUser_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "user", "old_name", "rename", "new_name"}, ""))
-	pattern_HeadscaleService_DeleteUser_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "user", "name"}, ""))
-	pattern_HeadscaleService_ListUsers_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "user"}, ""))
-	pattern_HeadscaleService_CreatePreAuthKey_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "preauthkey"}, ""))
-	pattern_HeadscaleService_ExpirePreAuthKey_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "preauthkey", "expire"}, ""))
-	pattern_HeadscaleService_ListPreAuthKeys_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "preauthkey"}, ""))
-	pattern_HeadscaleService_DebugCreateNode_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "debug", "node"}, ""))
-	pattern_HeadscaleService_GetNode_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "node", "node_id"}, ""))
-	pattern_HeadscaleService_SetTags_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "tags"}, ""))
-	pattern_HeadscaleService_RegisterNode_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "node", "register"}, ""))
-	pattern_HeadscaleService_DeleteNode_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "node", "node_id"}, ""))
-	pattern_HeadscaleService_ExpireNode_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "expire"}, ""))
-	pattern_HeadscaleService_RenameNode_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "node", "node_id", "rename", "new_name"}, ""))
-	pattern_HeadscaleService_ListNodes_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "node"}, ""))
-	pattern_HeadscaleService_MoveNode_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "user"}, ""))
-	pattern_HeadscaleService_BackfillNodeIPs_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "node", "backfillips"}, ""))
-	pattern_HeadscaleService_GetRoutes_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "routes"}, ""))
-	pattern_HeadscaleService_EnableRoute_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "routes", "route_id", "enable"}, ""))
-	pattern_HeadscaleService_DisableRoute_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "routes", "route_id", "disable"}, ""))
-	pattern_HeadscaleService_GetNodeRoutes_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "routes"}, ""))
-	pattern_HeadscaleService_DeleteRoute_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "routes", "route_id"}, ""))
-	pattern_HeadscaleService_CreateApiKey_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "apikey"}, ""))
-	pattern_HeadscaleService_ExpireApiKey_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "apikey", "expire"}, ""))
-	pattern_HeadscaleService_ListApiKeys_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "apikey"}, ""))
-	pattern_HeadscaleService_DeleteApiKey_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "apikey", "prefix"}, ""))
-	pattern_HeadscaleService_GetPolicy_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "policy"}, ""))
-	pattern_HeadscaleService_SetPolicy_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "policy"}, ""))
-	pattern_HeadscaleService_ACLCreateGroup_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "group", "group_name"}, ""))
-	pattern_HeadscaleService_ACLGroupAddUser_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "acl", "group", "group_name", "username"}, ""))
-	pattern_HeadscaleService_ACLGroupRemoveUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "acl", "group", "group_name", "username"}, ""))
-	pattern_HeadscaleService_ACLRemoveGroup_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "group", "group_name"}, ""))
-	pattern_HeadscaleService_ACLBindHostname_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "host", "hostname"}, ""))
-	pattern_HeadscaleService_ACLUpdateHostname_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "host", "hostname"}, ""))
-	pattern_HeadscaleService_ACLRemoveHostname_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "host", "hostname"}, ""))
-	pattern_HeadscaleService_ACLCreateTag_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "acl", "tag"}, ""))
-	pattern_HeadscaleService_ACLRemoveTag_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "acl", "tag"}, ""))
-	pattern_HeadscaleService_ACLCreateRule_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "accept"}, ""))
-	pattern_HeadscaleService_ACLRemoveRule_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "deny"}, ""))
-	pattern_HeadscaleService_ACLForceRemoveRule_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "remove"}, ""))
-	pattern_HeadscaleService_ACLRuleInclude_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "include"}, ""))
-	pattern_HeadscaleService_ACLRuleExclude_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "exclude"}, ""))
-	pattern_HeadscaleService_ACLCtrl_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "ctrl", "action"}, ""))
+	pattern_HeadscaleService_GetUser_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "user", "name"}, ""))
+	pattern_HeadscaleService_CreateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "user"}, ""))
+	pattern_HeadscaleService_RenameUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "user", "old_name", "rename", "new_name"}, ""))
+	pattern_HeadscaleService_DeleteUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "user", "name"}, ""))
+	pattern_HeadscaleService_ListUsers_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "user"}, ""))
+	pattern_HeadscaleService_CreatePreAuthKey_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "preauthkey"}, ""))
+	pattern_HeadscaleService_ExpirePreAuthKey_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "preauthkey", "expire"}, ""))
+	pattern_HeadscaleService_ListPreAuthKeys_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "preauthkey"}, ""))
+	pattern_HeadscaleService_LockPreAuthKeyTagLock_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "preauthkey", "lock"}, ""))
+	pattern_HeadscaleService_UnlockPreAuthKeyTagLock_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "preauthkey", "unlock"}, ""))
+	pattern_HeadscaleService_DebugCreateNode_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "debug", "node"}, ""))
+	pattern_HeadscaleService_GetNode_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "node", "node_id"}, ""))
+	pattern_HeadscaleService_SetTags_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "tags"}, ""))
+	pattern_HeadscaleService_RegisterNode_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "node", "register"}, ""))
+	pattern_HeadscaleService_DeleteNode_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "node", "node_id"}, ""))
+	pattern_HeadscaleService_ExpireNode_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "expire"}, ""))
+	pattern_HeadscaleService_RenameNode_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "node", "node_id", "rename", "new_name"}, ""))
+	pattern_HeadscaleService_ListNodes_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "node"}, ""))
+	pattern_HeadscaleService_MoveNode_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "user"}, ""))
+	pattern_HeadscaleService_BackfillNodeIPs_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "node", "backfillips"}, ""))
+	pattern_HeadscaleService_GetRoutes_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "routes"}, ""))
+	pattern_HeadscaleService_EnableRoute_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "routes", "route_id", "enable"}, ""))
+	pattern_HeadscaleService_DisableRoute_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "routes", "route_id", "disable"}, ""))
+	pattern_HeadscaleService_GetNodeRoutes_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "node", "node_id", "routes"}, ""))
+	pattern_HeadscaleService_DeleteRoute_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "routes", "route_id"}, ""))
+	pattern_HeadscaleService_CreateApiKey_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "apikey"}, ""))
+	pattern_HeadscaleService_ExpireApiKey_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "apikey", "expire"}, ""))
+	pattern_HeadscaleService_ListApiKeys_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "apikey"}, ""))
+	pattern_HeadscaleService_DeleteApiKey_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "apikey", "prefix"}, ""))
+	pattern_HeadscaleService_GetPolicy_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "policy"}, ""))
+	pattern_HeadscaleService_SetPolicy_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "policy"}, ""))
+	pattern_HeadscaleService_ACLCreateGroup_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "group", "group_name"}, ""))
+	pattern_HeadscaleService_ACLGroupAddUser_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "acl", "group", "group_name", "username"}, ""))
+	pattern_HeadscaleService_ACLGroupRemoveUser_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "acl", "group", "group_name", "username"}, ""))
+	pattern_HeadscaleService_ACLRemoveGroup_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "group", "group_name"}, ""))
+	pattern_HeadscaleService_ACLBindHostname_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "host", "hostname"}, ""))
+	pattern_HeadscaleService_ACLUpdateHostname_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "host", "hostname"}, ""))
+	pattern_HeadscaleService_ACLRemoveHostname_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "host", "hostname"}, ""))
+	pattern_HeadscaleService_ACLCreateTag_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "acl", "tag"}, ""))
+	pattern_HeadscaleService_ACLRemoveTag_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "acl", "tag"}, ""))
+	pattern_HeadscaleService_ACLCreateRule_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "accept"}, ""))
+	pattern_HeadscaleService_ACLRemoveRule_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "deny"}, ""))
+	pattern_HeadscaleService_ACLForceRemoveRule_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "remove"}, ""))
+	pattern_HeadscaleService_ACLRuleInclude_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "include"}, ""))
+	pattern_HeadscaleService_ACLRuleExclude_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "acl", "exclude"}, ""))
+	pattern_HeadscaleService_ACLCtrl_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "acl", "ctrl", "action"}, ""))
 )
 
 var (
-	forward_HeadscaleService_GetUser_0            = runtime.ForwardResponseMessage
-	forward_HeadscaleService_CreateUser_0         = runtime.ForwardResponseMessage
-	forward_HeadscaleService_RenameUser_0         = runtime.ForwardResponseMessage
-	forward_HeadscaleService_DeleteUser_0         = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ListUsers_0          = runtime.ForwardResponseMessage
-	forward_HeadscaleService_CreatePreAuthKey_0   = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ExpirePreAuthKey_0   = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ListPreAuthKeys_0    = runtime.ForwardResponseMessage
-	forward_HeadscaleService_DebugCreateNode_0    = runtime.ForwardResponseMessage
-	forward_HeadscaleService_GetNode_0            = runtime.ForwardResponseMessage
-	forward_HeadscaleService_SetTags_0            = runtime.ForwardResponseMessage
-	forward_HeadscaleService_RegisterNode_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_DeleteNode_0         = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ExpireNode_0         = runtime.ForwardResponseMessage
-	forward_HeadscaleService_RenameNode_0         = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ListNodes_0          = runtime.ForwardResponseMessage
-	forward_HeadscaleService_MoveNode_0           = runtime.ForwardResponseMessage
-	forward_HeadscaleService_BackfillNodeIPs_0    = runtime.ForwardResponseMessage
-	forward_HeadscaleService_GetRoutes_0          = runtime.ForwardResponseMessage
-	forward_HeadscaleService_EnableRoute_0        = runtime.ForwardResponseMessage
-	forward_HeadscaleService_DisableRoute_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_GetNodeRoutes_0      = runtime.ForwardResponseMessage
-	forward_HeadscaleService_DeleteRoute_0        = runtime.ForwardResponseMessage
-	forward_HeadscaleService_CreateApiKey_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ExpireApiKey_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ListApiKeys_0        = runtime.ForwardResponseMessage
-	forward_HeadscaleService_DeleteApiKey_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_GetPolicy_0          = runtime.ForwardResponseMessage
-	forward_HeadscaleService_SetPolicy_0          = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLCreateGroup_0     = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLGroupAddUser_0    = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLGroupRemoveUser_0 = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLRemoveGroup_0     = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLBindHostname_0    = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLUpdateHostname_0  = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLRemoveHostname_0  = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLCreateTag_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLRemoveTag_0       = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLCreateRule_0      = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLRemoveRule_0      = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLForceRemoveRule_0 = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLRuleInclude_0     = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLRuleExclude_0     = runtime.ForwardResponseMessage
-	forward_HeadscaleService_ACLCtrl_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_GetUser_0                 = runtime.ForwardResponseMessage
+	forward_HeadscaleService_CreateUser_0              = runtime.ForwardResponseMessage
+	forward_HeadscaleService_RenameUser_0              = runtime.ForwardResponseMessage
+	forward_HeadscaleService_DeleteUser_0              = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ListUsers_0               = runtime.ForwardResponseMessage
+	forward_HeadscaleService_CreatePreAuthKey_0        = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ExpirePreAuthKey_0        = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ListPreAuthKeys_0         = runtime.ForwardResponseMessage
+	forward_HeadscaleService_LockPreAuthKeyTagLock_0   = runtime.ForwardResponseMessage
+	forward_HeadscaleService_UnlockPreAuthKeyTagLock_0 = runtime.ForwardResponseMessage
+	forward_HeadscaleService_DebugCreateNode_0         = runtime.ForwardResponseMessage
+	forward_HeadscaleService_GetNode_0                 = runtime.ForwardResponseMessage
+	forward_HeadscaleService_SetTags_0                 = runtime.ForwardResponseMessage
+	forward_HeadscaleService_RegisterNode_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_DeleteNode_0              = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ExpireNode_0              = runtime.ForwardResponseMessage
+	forward_HeadscaleService_RenameNode_0              = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ListNodes_0               = runtime.ForwardResponseMessage
+	forward_HeadscaleService_MoveNode_0                = runtime.ForwardResponseMessage
+	forward_HeadscaleService_BackfillNodeIPs_0         = runtime.ForwardResponseMessage
+	forward_HeadscaleService_GetRoutes_0               = runtime.ForwardResponseMessage
+	forward_HeadscaleService_EnableRoute_0             = runtime.ForwardResponseMessage
+	forward_HeadscaleService_DisableRoute_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_GetNodeRoutes_0           = runtime.ForwardResponseMessage
+	forward_HeadscaleService_DeleteRoute_0             = runtime.ForwardResponseMessage
+	forward_HeadscaleService_CreateApiKey_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ExpireApiKey_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ListApiKeys_0             = runtime.ForwardResponseMessage
+	forward_HeadscaleService_DeleteApiKey_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_GetPolicy_0               = runtime.ForwardResponseMessage
+	forward_HeadscaleService_SetPolicy_0               = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLCreateGroup_0          = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLGroupAddUser_0         = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLGroupRemoveUser_0      = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLRemoveGroup_0          = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLBindHostname_0         = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLUpdateHostname_0       = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLRemoveHostname_0       = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLCreateTag_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLRemoveTag_0            = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLCreateRule_0           = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLRemoveRule_0           = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLForceRemoveRule_0      = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLRuleInclude_0          = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLRuleExclude_0          = runtime.ForwardResponseMessage
+	forward_HeadscaleService_ACLCtrl_0                 = runtime.ForwardResponseMessage
 )

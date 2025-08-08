@@ -19,50 +19,52 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HeadscaleService_GetUser_FullMethodName            = "/headscale.v1.HeadscaleService/GetUser"
-	HeadscaleService_CreateUser_FullMethodName         = "/headscale.v1.HeadscaleService/CreateUser"
-	HeadscaleService_RenameUser_FullMethodName         = "/headscale.v1.HeadscaleService/RenameUser"
-	HeadscaleService_DeleteUser_FullMethodName         = "/headscale.v1.HeadscaleService/DeleteUser"
-	HeadscaleService_ListUsers_FullMethodName          = "/headscale.v1.HeadscaleService/ListUsers"
-	HeadscaleService_CreatePreAuthKey_FullMethodName   = "/headscale.v1.HeadscaleService/CreatePreAuthKey"
-	HeadscaleService_ExpirePreAuthKey_FullMethodName   = "/headscale.v1.HeadscaleService/ExpirePreAuthKey"
-	HeadscaleService_ListPreAuthKeys_FullMethodName    = "/headscale.v1.HeadscaleService/ListPreAuthKeys"
-	HeadscaleService_DebugCreateNode_FullMethodName    = "/headscale.v1.HeadscaleService/DebugCreateNode"
-	HeadscaleService_GetNode_FullMethodName            = "/headscale.v1.HeadscaleService/GetNode"
-	HeadscaleService_SetTags_FullMethodName            = "/headscale.v1.HeadscaleService/SetTags"
-	HeadscaleService_RegisterNode_FullMethodName       = "/headscale.v1.HeadscaleService/RegisterNode"
-	HeadscaleService_DeleteNode_FullMethodName         = "/headscale.v1.HeadscaleService/DeleteNode"
-	HeadscaleService_ExpireNode_FullMethodName         = "/headscale.v1.HeadscaleService/ExpireNode"
-	HeadscaleService_RenameNode_FullMethodName         = "/headscale.v1.HeadscaleService/RenameNode"
-	HeadscaleService_ListNodes_FullMethodName          = "/headscale.v1.HeadscaleService/ListNodes"
-	HeadscaleService_MoveNode_FullMethodName           = "/headscale.v1.HeadscaleService/MoveNode"
-	HeadscaleService_BackfillNodeIPs_FullMethodName    = "/headscale.v1.HeadscaleService/BackfillNodeIPs"
-	HeadscaleService_GetRoutes_FullMethodName          = "/headscale.v1.HeadscaleService/GetRoutes"
-	HeadscaleService_EnableRoute_FullMethodName        = "/headscale.v1.HeadscaleService/EnableRoute"
-	HeadscaleService_DisableRoute_FullMethodName       = "/headscale.v1.HeadscaleService/DisableRoute"
-	HeadscaleService_GetNodeRoutes_FullMethodName      = "/headscale.v1.HeadscaleService/GetNodeRoutes"
-	HeadscaleService_DeleteRoute_FullMethodName        = "/headscale.v1.HeadscaleService/DeleteRoute"
-	HeadscaleService_CreateApiKey_FullMethodName       = "/headscale.v1.HeadscaleService/CreateApiKey"
-	HeadscaleService_ExpireApiKey_FullMethodName       = "/headscale.v1.HeadscaleService/ExpireApiKey"
-	HeadscaleService_ListApiKeys_FullMethodName        = "/headscale.v1.HeadscaleService/ListApiKeys"
-	HeadscaleService_DeleteApiKey_FullMethodName       = "/headscale.v1.HeadscaleService/DeleteApiKey"
-	HeadscaleService_GetPolicy_FullMethodName          = "/headscale.v1.HeadscaleService/GetPolicy"
-	HeadscaleService_SetPolicy_FullMethodName          = "/headscale.v1.HeadscaleService/SetPolicy"
-	HeadscaleService_ACLCreateGroup_FullMethodName     = "/headscale.v1.HeadscaleService/ACLCreateGroup"
-	HeadscaleService_ACLGroupAddUser_FullMethodName    = "/headscale.v1.HeadscaleService/ACLGroupAddUser"
-	HeadscaleService_ACLGroupRemoveUser_FullMethodName = "/headscale.v1.HeadscaleService/ACLGroupRemoveUser"
-	HeadscaleService_ACLRemoveGroup_FullMethodName     = "/headscale.v1.HeadscaleService/ACLRemoveGroup"
-	HeadscaleService_ACLBindHostname_FullMethodName    = "/headscale.v1.HeadscaleService/ACLBindHostname"
-	HeadscaleService_ACLUpdateHostname_FullMethodName  = "/headscale.v1.HeadscaleService/ACLUpdateHostname"
-	HeadscaleService_ACLRemoveHostname_FullMethodName  = "/headscale.v1.HeadscaleService/ACLRemoveHostname"
-	HeadscaleService_ACLCreateTag_FullMethodName       = "/headscale.v1.HeadscaleService/ACLCreateTag"
-	HeadscaleService_ACLRemoveTag_FullMethodName       = "/headscale.v1.HeadscaleService/ACLRemoveTag"
-	HeadscaleService_ACLCreateRule_FullMethodName      = "/headscale.v1.HeadscaleService/ACLCreateRule"
-	HeadscaleService_ACLRemoveRule_FullMethodName      = "/headscale.v1.HeadscaleService/ACLRemoveRule"
-	HeadscaleService_ACLForceRemoveRule_FullMethodName = "/headscale.v1.HeadscaleService/ACLForceRemoveRule"
-	HeadscaleService_ACLRuleInclude_FullMethodName     = "/headscale.v1.HeadscaleService/ACLRuleInclude"
-	HeadscaleService_ACLRuleExclude_FullMethodName     = "/headscale.v1.HeadscaleService/ACLRuleExclude"
-	HeadscaleService_ACLCtrl_FullMethodName            = "/headscale.v1.HeadscaleService/ACLCtrl"
+	HeadscaleService_GetUser_FullMethodName                 = "/headscale.v1.HeadscaleService/GetUser"
+	HeadscaleService_CreateUser_FullMethodName              = "/headscale.v1.HeadscaleService/CreateUser"
+	HeadscaleService_RenameUser_FullMethodName              = "/headscale.v1.HeadscaleService/RenameUser"
+	HeadscaleService_DeleteUser_FullMethodName              = "/headscale.v1.HeadscaleService/DeleteUser"
+	HeadscaleService_ListUsers_FullMethodName               = "/headscale.v1.HeadscaleService/ListUsers"
+	HeadscaleService_CreatePreAuthKey_FullMethodName        = "/headscale.v1.HeadscaleService/CreatePreAuthKey"
+	HeadscaleService_ExpirePreAuthKey_FullMethodName        = "/headscale.v1.HeadscaleService/ExpirePreAuthKey"
+	HeadscaleService_ListPreAuthKeys_FullMethodName         = "/headscale.v1.HeadscaleService/ListPreAuthKeys"
+	HeadscaleService_LockPreAuthKeyTagLock_FullMethodName   = "/headscale.v1.HeadscaleService/LockPreAuthKeyTagLock"
+	HeadscaleService_UnlockPreAuthKeyTagLock_FullMethodName = "/headscale.v1.HeadscaleService/UnlockPreAuthKeyTagLock"
+	HeadscaleService_DebugCreateNode_FullMethodName         = "/headscale.v1.HeadscaleService/DebugCreateNode"
+	HeadscaleService_GetNode_FullMethodName                 = "/headscale.v1.HeadscaleService/GetNode"
+	HeadscaleService_SetTags_FullMethodName                 = "/headscale.v1.HeadscaleService/SetTags"
+	HeadscaleService_RegisterNode_FullMethodName            = "/headscale.v1.HeadscaleService/RegisterNode"
+	HeadscaleService_DeleteNode_FullMethodName              = "/headscale.v1.HeadscaleService/DeleteNode"
+	HeadscaleService_ExpireNode_FullMethodName              = "/headscale.v1.HeadscaleService/ExpireNode"
+	HeadscaleService_RenameNode_FullMethodName              = "/headscale.v1.HeadscaleService/RenameNode"
+	HeadscaleService_ListNodes_FullMethodName               = "/headscale.v1.HeadscaleService/ListNodes"
+	HeadscaleService_MoveNode_FullMethodName                = "/headscale.v1.HeadscaleService/MoveNode"
+	HeadscaleService_BackfillNodeIPs_FullMethodName         = "/headscale.v1.HeadscaleService/BackfillNodeIPs"
+	HeadscaleService_GetRoutes_FullMethodName               = "/headscale.v1.HeadscaleService/GetRoutes"
+	HeadscaleService_EnableRoute_FullMethodName             = "/headscale.v1.HeadscaleService/EnableRoute"
+	HeadscaleService_DisableRoute_FullMethodName            = "/headscale.v1.HeadscaleService/DisableRoute"
+	HeadscaleService_GetNodeRoutes_FullMethodName           = "/headscale.v1.HeadscaleService/GetNodeRoutes"
+	HeadscaleService_DeleteRoute_FullMethodName             = "/headscale.v1.HeadscaleService/DeleteRoute"
+	HeadscaleService_CreateApiKey_FullMethodName            = "/headscale.v1.HeadscaleService/CreateApiKey"
+	HeadscaleService_ExpireApiKey_FullMethodName            = "/headscale.v1.HeadscaleService/ExpireApiKey"
+	HeadscaleService_ListApiKeys_FullMethodName             = "/headscale.v1.HeadscaleService/ListApiKeys"
+	HeadscaleService_DeleteApiKey_FullMethodName            = "/headscale.v1.HeadscaleService/DeleteApiKey"
+	HeadscaleService_GetPolicy_FullMethodName               = "/headscale.v1.HeadscaleService/GetPolicy"
+	HeadscaleService_SetPolicy_FullMethodName               = "/headscale.v1.HeadscaleService/SetPolicy"
+	HeadscaleService_ACLCreateGroup_FullMethodName          = "/headscale.v1.HeadscaleService/ACLCreateGroup"
+	HeadscaleService_ACLGroupAddUser_FullMethodName         = "/headscale.v1.HeadscaleService/ACLGroupAddUser"
+	HeadscaleService_ACLGroupRemoveUser_FullMethodName      = "/headscale.v1.HeadscaleService/ACLGroupRemoveUser"
+	HeadscaleService_ACLRemoveGroup_FullMethodName          = "/headscale.v1.HeadscaleService/ACLRemoveGroup"
+	HeadscaleService_ACLBindHostname_FullMethodName         = "/headscale.v1.HeadscaleService/ACLBindHostname"
+	HeadscaleService_ACLUpdateHostname_FullMethodName       = "/headscale.v1.HeadscaleService/ACLUpdateHostname"
+	HeadscaleService_ACLRemoveHostname_FullMethodName       = "/headscale.v1.HeadscaleService/ACLRemoveHostname"
+	HeadscaleService_ACLCreateTag_FullMethodName            = "/headscale.v1.HeadscaleService/ACLCreateTag"
+	HeadscaleService_ACLRemoveTag_FullMethodName            = "/headscale.v1.HeadscaleService/ACLRemoveTag"
+	HeadscaleService_ACLCreateRule_FullMethodName           = "/headscale.v1.HeadscaleService/ACLCreateRule"
+	HeadscaleService_ACLRemoveRule_FullMethodName           = "/headscale.v1.HeadscaleService/ACLRemoveRule"
+	HeadscaleService_ACLForceRemoveRule_FullMethodName      = "/headscale.v1.HeadscaleService/ACLForceRemoveRule"
+	HeadscaleService_ACLRuleInclude_FullMethodName          = "/headscale.v1.HeadscaleService/ACLRuleInclude"
+	HeadscaleService_ACLRuleExclude_FullMethodName          = "/headscale.v1.HeadscaleService/ACLRuleExclude"
+	HeadscaleService_ACLCtrl_FullMethodName                 = "/headscale.v1.HeadscaleService/ACLCtrl"
 )
 
 // HeadscaleServiceClient is the client API for HeadscaleService service.
@@ -79,6 +81,8 @@ type HeadscaleServiceClient interface {
 	CreatePreAuthKey(ctx context.Context, in *CreatePreAuthKeyRequest, opts ...grpc.CallOption) (*CreatePreAuthKeyResponse, error)
 	ExpirePreAuthKey(ctx context.Context, in *ExpirePreAuthKeyRequest, opts ...grpc.CallOption) (*ExpirePreAuthKeyResponse, error)
 	ListPreAuthKeys(ctx context.Context, in *ListPreAuthKeysRequest, opts ...grpc.CallOption) (*ListPreAuthKeysResponse, error)
+	LockPreAuthKeyTagLock(ctx context.Context, in *PreAuthKeyTagLockRequest, opts ...grpc.CallOption) (*PreAuthKeyTagLockResponse, error)
+	UnlockPreAuthKeyTagLock(ctx context.Context, in *PreAuthKeyTagLockRequest, opts ...grpc.CallOption) (*PreAuthKeyTagLockResponse, error)
 	// --- Node start ---
 	DebugCreateNode(ctx context.Context, in *DebugCreateNodeRequest, opts ...grpc.CallOption) (*DebugCreateNodeResponse, error)
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
@@ -204,6 +208,26 @@ func (c *headscaleServiceClient) ListPreAuthKeys(ctx context.Context, in *ListPr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListPreAuthKeysResponse)
 	err := c.cc.Invoke(ctx, HeadscaleService_ListPreAuthKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) LockPreAuthKeyTagLock(ctx context.Context, in *PreAuthKeyTagLockRequest, opts ...grpc.CallOption) (*PreAuthKeyTagLockResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreAuthKeyTagLockResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_LockPreAuthKeyTagLock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) UnlockPreAuthKeyTagLock(ctx context.Context, in *PreAuthKeyTagLockRequest, opts ...grpc.CallOption) (*PreAuthKeyTagLockResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreAuthKeyTagLockResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_UnlockPreAuthKeyTagLock_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -584,6 +608,8 @@ type HeadscaleServiceServer interface {
 	CreatePreAuthKey(context.Context, *CreatePreAuthKeyRequest) (*CreatePreAuthKeyResponse, error)
 	ExpirePreAuthKey(context.Context, *ExpirePreAuthKeyRequest) (*ExpirePreAuthKeyResponse, error)
 	ListPreAuthKeys(context.Context, *ListPreAuthKeysRequest) (*ListPreAuthKeysResponse, error)
+	LockPreAuthKeyTagLock(context.Context, *PreAuthKeyTagLockRequest) (*PreAuthKeyTagLockResponse, error)
+	UnlockPreAuthKeyTagLock(context.Context, *PreAuthKeyTagLockRequest) (*PreAuthKeyTagLockResponse, error)
 	// --- Node start ---
 	DebugCreateNode(context.Context, *DebugCreateNodeRequest) (*DebugCreateNodeResponse, error)
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
@@ -658,6 +684,12 @@ func (UnimplementedHeadscaleServiceServer) ExpirePreAuthKey(context.Context, *Ex
 }
 func (UnimplementedHeadscaleServiceServer) ListPreAuthKeys(context.Context, *ListPreAuthKeysRequest) (*ListPreAuthKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPreAuthKeys not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) LockPreAuthKeyTagLock(context.Context, *PreAuthKeyTagLockRequest) (*PreAuthKeyTagLockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LockPreAuthKeyTagLock not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) UnlockPreAuthKeyTagLock(context.Context, *PreAuthKeyTagLockRequest) (*PreAuthKeyTagLockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnlockPreAuthKeyTagLock not implemented")
 }
 func (UnimplementedHeadscaleServiceServer) DebugCreateNode(context.Context, *DebugCreateNodeRequest) (*DebugCreateNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DebugCreateNode not implemented")
@@ -928,6 +960,42 @@ func _HeadscaleService_ListPreAuthKeys_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HeadscaleServiceServer).ListPreAuthKeys(ctx, req.(*ListPreAuthKeysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_LockPreAuthKeyTagLock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreAuthKeyTagLockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).LockPreAuthKeyTagLock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_LockPreAuthKeyTagLock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).LockPreAuthKeyTagLock(ctx, req.(*PreAuthKeyTagLockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_UnlockPreAuthKeyTagLock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreAuthKeyTagLockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).UnlockPreAuthKeyTagLock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_UnlockPreAuthKeyTagLock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).UnlockPreAuthKeyTagLock(ctx, req.(*PreAuthKeyTagLockRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1618,6 +1686,14 @@ var HeadscaleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListPreAuthKeys",
 			Handler:    _HeadscaleService_ListPreAuthKeys_Handler,
+		},
+		{
+			MethodName: "LockPreAuthKeyTagLock",
+			Handler:    _HeadscaleService_LockPreAuthKeyTagLock_Handler,
+		},
+		{
+			MethodName: "UnlockPreAuthKeyTagLock",
+			Handler:    _HeadscaleService_UnlockPreAuthKeyTagLock_Handler,
 		},
 		{
 			MethodName: "DebugCreateNode",
