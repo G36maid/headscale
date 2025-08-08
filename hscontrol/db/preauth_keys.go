@@ -172,6 +172,94 @@ func UsePreAuthKey(tx *gorm.DB, k *types.PreAuthKey) error {
 	return nil
 }
 
+func (hsdb *HSDatabase) GetPreAuthKeyTagLock(tag string) (*PreAuthKeyTagLock, error) {
+	return Read(hsdb.DB, func(rx *gorm.DB) (*PreAuthKeyTagLock, error) {
+		return GetPreAuthKeyTagLock(rx, tag)
+	})
+}
+
+// GetPreAuthKeyTagLock returns a PreAuthKeyTagLock for a SGUser_tag.
+func GetPreAuthKeyTagLock(tx *gorm.DB, tag string) (*PreAuthKeyTagLock, error) {
+	var lockRecord PreAuthKeyTagLock
+
+	if err := tx.Where("tag = ?", tag).First(&lockRecord).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("PreAuthKeyTagLock not found for tag: %s", tag)
+		}
+		return nil, err
+	}
+	return &lockRecord, nil
+}
+
+// GetPreAuthKeyTagLockBySguUuid returns a PreAuthKeyTagLock for a sgu_uuid.
+func (hsdb *HSDatabase) GetPreAuthKeyTagLockBySguUuid(sgu_uuid string) (*PreAuthKeyTagLock, error) {
+	return Read(hsdb.DB, func(rx *gorm.DB) (*PreAuthKeyTagLock, error) {
+		return GetPreAuthKeyTagLockBySguUuid(rx, sgu_uuid)
+	})
+}
+
+func GetPreAuthKeyTagLockBySguUuid(tx *gorm.DB, sgu_uuid string) (*PreAuthKeyTagLock, error) {
+	sguserTag := fmt.Sprintf("tag:sguser_%s", sgu_uuid)
+	return GetPreAuthKeyTagLock(tx, sguserTag)
+}
+
+// SetPreAuthKeyTagLock sets the lock status for a given SGUser UUID with optimized performance.
+// Uses existing query functions to avoid code duplication.
+func (hsdb *HSDatabase) SetPreAuthKeyTagLockBySguUuid(sgu_uuid string, isLock bool) error {
+	_, err := Write(hsdb.DB, func(tx *gorm.DB) (bool, error) {
+		return SetPreAuthKeyTagLockBySguUuid(tx, sgu_uuid, isLock)
+	})
+	return err
+}
+
+func SetPreAuthKeyTagLockBySguUuid(tx *gorm.DB, sgu_uuid string, isLock bool) (bool, error) {
+	existingRecord, err := GetPreAuthKeyTagLockBySguUuid(tx, sgu_uuid)
+
+	if err == nil {
+		if existingRecord.IsLock != isLock {
+			existingRecord.IsLock = isLock
+			if err := tx.Model(&existingRecord).Where("tag = ?", existingRecord.Tag).Update("is_lock", isLock).Error; err != nil {
+				return false, fmt.Errorf("failed to update PreAuthKeyTagLock for UUID %s: %w", sgu_uuid, err)
+			}
+		}
+		return true, nil
+	}
+
+	if strings.Contains(err.Error(), "not found") {
+		sguserTag := fmt.Sprintf("tag:sguser_%s", sgu_uuid)
+		newRecord := PreAuthKeyTagLock{
+			Tag:    sguserTag,
+			IsLock: isLock,
+		}
+		if err := tx.Create(&newRecord).Error; err != nil {
+			return false, fmt.Errorf("failed to create PreAuthKeyTagLock for UUID %s: %w", sgu_uuid, err)
+		}
+		return true, nil
+	}
+
+	return false, fmt.Errorf("failed to query PreAuthKeyTagLock for UUID %s: %w", sgu_uuid, err)
+}
+
+// CheckSGUserTagLock check SGUser_tag of preauthkeys. Returns error if the SGUser_tag is Locked.
+func (hsdb *HSDatabase) CheckSGUserTagLock(pak *types.PreAuthKey) error {
+	_, err := Read(hsdb.DB, func(rx *gorm.DB) (bool, error) {
+		return CheckSGUserTagLock(rx, pak)
+	})
+	return err
+}
+
+func CheckSGUserTagLock(tx *gorm.DB, pak *types.PreAuthKey) (bool, error) {
+	for _, aclTag := range pak.ACLTags {
+		if strings.HasPrefix(aclTag.Tag, "tag:sguser") {
+			lockRecord, err := GetPreAuthKeyTagLock(tx, aclTag.Tag)
+			if err == nil && lockRecord.IsLock {
+				return false, fmt.Errorf("SGUser tag %s is locked", aclTag.Tag)
+			}
+		}
+	}
+	return true, nil
+}
+
 func (hsdb *HSDatabase) ValidatePreAuthKey(k string) (*types.PreAuthKey, error) {
 	return Read(hsdb.DB, func(rx *gorm.DB) (*types.PreAuthKey, error) {
 		return ValidatePreAuthKey(rx, k)

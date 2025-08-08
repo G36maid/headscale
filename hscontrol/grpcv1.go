@@ -189,6 +189,30 @@ func (api headscaleV1APIServer) ListPreAuthKeys(
 	return &v1.ListPreAuthKeysResponse{PreAuthKeys: response}, nil
 }
 
+func (api headscaleV1APIServer) LockPreAuthKeyTagLock(
+	ctx context.Context,
+	request *v1.PreAuthKeyTagLockRequest,
+) (*v1.PreAuthKeyTagLockResponse, error) {
+
+	log.Trace().
+		Interface("request.SguUuid", request.SguUuid).
+		Msg("Lock PreAuthKeyTagLock")
+	err := api.h.db.SetPreAuthKeyTagLockBySguUuid(request.SguUuid, true)
+	return &v1.PreAuthKeyTagLockResponse{}, err
+}
+
+func (api headscaleV1APIServer) UnlockPreAuthKeyTagLock(
+	ctx context.Context,
+	request *v1.PreAuthKeyTagLockRequest,
+) (*v1.PreAuthKeyTagLockResponse, error) {
+
+	log.Trace().
+		Interface("request.SguUuid", request.SguUuid).
+		Msg("Unlock PreAuthKeyTagLock")
+	err := api.h.db.SetPreAuthKeyTagLockBySguUuid(request.SguUuid, false)
+	return &v1.PreAuthKeyTagLockResponse{}, err
+}
+
 func (api headscaleV1APIServer) RegisterNode(
 	ctx context.Context,
 	request *v1.RegisterNodeRequest,

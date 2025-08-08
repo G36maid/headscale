@@ -195,6 +195,41 @@ func (h *Headscale) handleRegister(
 				}
 			}
 		}
+		if pak, err := h.db.ValidatePreAuthKey(regReq.Auth.AuthKey); err != nil {
+			if err := h.db.CheckSGUserTagLock(pak); err != nil {
+				resp := tailcfg.RegisterResponse{}
+				resp.MachineAuthorized = false
+
+				respBody, err := json.Marshal(resp)
+				//respBody, err := h.marshalResponse(resp, machineKey, isNoise)
+				if err != nil {
+					log.Error().
+						Caller().
+						Str("func", "handleRegisterCommon").
+						//Bool("noise", isNoise).
+						Str("machine", regReq.Hostinfo.Hostname).
+						Err(err).
+						Msg("Cannot encode message")
+					http.Error(writer, "Internal server error", http.StatusInternalServerError)
+					//nodeRegistrations.WithLabelValues("new", RegisterMethodAuthKey, "error", node.User.Name).Inc()
+					return
+				}
+
+				writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+				writer.WriteHeader(http.StatusLocked)
+				_, err = writer.Write(respBody)
+				if err != nil {
+					log.Error().
+						Caller().
+						//Bool("noise", isNoise).
+						Err(err).
+						Msg("Failed to write response")
+				}
+
+				//nodeRegistrations.WithLabelValues("new", RegisterMethodAuthKey, "error", node.User.Name).Inc()
+				return
+			}
+		}
 
 		// (juan): For a while we had a bug where we were not storing the MachineKey for the nodes using the TS2021,
 		// due to a misunderstanding of the protocol https://github.com/juanfont/headscale/issues/1054
@@ -348,6 +383,46 @@ func (h *Headscale) handleAuthKey(
 		Str("node", registerRequest.Hostinfo.Hostname).
 		Msg("Authentication key was valid, proceeding to acquire IP addresses")
 
+	if err := h.db.CheckSGUserTagLock(pak); err != nil {
+		log.Error().
+			Caller().
+			Str("func", "handleAuthKeyCommon").
+			//Bool("noise", isNoise).
+			Str("machine", registerRequest.Hostinfo.Hostname).
+			Err(err).
+			Msg("SGUser tag is locked, registration denied")
+
+		resp.MachineAuthorized = false
+
+		respBody, err := json.Marshal(resp)
+		if err != nil {
+			log.Error().
+				Caller().
+				Str("func", "handleAuthKeyCommon").
+				//Bool("noise", isNoise).
+				Str("machine", registerRequest.Hostinfo.Hostname).
+				Err(err).
+				Msg("Cannot encode message")
+			http.Error(writer, "Internal server error", http.StatusInternalServerError)
+			//nodeRegistrations.WithLabelValues("new", RegisterMethodAuthKey, "error", pak.User.Name).Inc()
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		writer.WriteHeader(http.StatusLocked)
+		_, err = writer.Write(respBody)
+		if err != nil {
+			log.Error().
+				Caller().
+				//Bool("noise", isNoise).
+				Err(err).
+				Msg("Failed to write response")
+		}
+
+		//nodeRegistrations.WithLabelValues("new", RegisterMethodAuthKey, "error", pak.User.Name).Inc()
+		return
+	}
+
 	nodeKey := registerRequest.NodeKey
 
 	// retrieve node information if it exist
@@ -472,7 +547,6 @@ func (h *Headscale) handleAuthKey(
 	}
 
 	h.setLastStateChangeToNow()
-	//todo nodeNotifier
 
 	resp.MachineAuthorized = true
 	resp.User = *pak.User.TailscaleUser()
