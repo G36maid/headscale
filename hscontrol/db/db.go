@@ -38,6 +38,11 @@ type KV struct {
 	Value string
 }
 
+type PreAuthKeyTagLock struct {
+	Tag    string `gorm:"type:varchar(48);unique_index"`
+	IsLock bool
+}
+
 type HSDatabase struct {
 	DB *gorm.DB
 
@@ -302,6 +307,34 @@ func NewHeadscaleDatabase(
 					err = tx.AutoMigrate(&types.PreAuthKeyACLTag{})
 					if err != nil {
 						return err
+					}
+
+					err = tx.AutoMigrate(&PreAuthKeyTagLock{})
+					if err != nil {
+						return err
+					}
+
+					var uniqueSGTags []string
+
+					err = tx.
+						Table("pre_auth_key_acl_tags").
+						Select("DISTINCT tag").
+						Where("tag LIKE ?", "tag:sguser%").
+						Pluck("tag", &uniqueSGTags).
+						Error
+					if err != nil {
+						return err
+					}
+
+					for _, tag := range uniqueSGTags {
+						err := tx.Where(PreAuthKeyTagLock{Tag: tag}).
+							FirstOrCreate(&PreAuthKeyTagLock{}, PreAuthKeyTagLock{
+								Tag:    tag,
+								IsLock: false,
+							}).Error
+						if err != nil {
+							return err
+						}
 					}
 
 					_ = tx.Migrator().DropTable("shared_machines")

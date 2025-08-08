@@ -43,3 +43,10 @@ message ListPreAuthKeysRequest {
 message ListPreAuthKeysResponse {
     repeated PreAuthKey pre_auth_keys = 1;
 }
+
+message PreAuthKeyTagLockRequest {
+    string sgu_uuid = 1;
+}
+
+message PreAuthKeyTagLockResponse {
+}

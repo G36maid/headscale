@@ -66,6 +66,21 @@ service HeadscaleService {
             get: "/api/v1/preauthkey"
         };
     }
+
+    rpc LockPreAuthKeyTagLock(PreAuthKeyTagLockRequest) returns(PreAuthKeyTagLockResponse) {
+        option(google.api.http) = {
+            post : "/api/v1/preauthkey/lock"
+            body : "*"
+        };
+    }
+
+    rpc UnlockPreAuthKeyTagLock(PreAuthKeyTagLockRequest) returns(PreAuthKeyTagLockResponse) {
+        option(google.api.http) = {
+            post : "/api/v1/preauthkey/unlock"
+            body : "*"
+        };
+    }
+
     // --- PreAuthKeys end ---
 
     // --- Node start ---
