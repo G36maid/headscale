@@ -1132,6 +1132,70 @@
         ]
       }
     },
+    "/api/v1/preauthkey/lock": {
+      "post": {
+        "operationId": "HeadscaleService_LockPreAuthKeyTagLock",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeyTagLockResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeyTagLockRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HeadscaleService"
+        ]
+      }
+    },
+    "/api/v1/preauthkey/unlock": {
+      "post": {
+        "operationId": "HeadscaleService_UnlockPreAuthKeyTagLock",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeyTagLockResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeyTagLockRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HeadscaleService"
+        ]
+      }
+    },
     "/api/v1/routes": {
       "get": {
         "summary": "--- Route start ---",
@@ -1888,6 +1952,17 @@
           }
         }
       }
+    },
+    "v1PreAuthKeyTagLockRequest": {
+      "type": "object",
+      "properties": {
+        "sguUuid": {
+          "type": "string"
+        }
+      }
+    },
+    "v1PreAuthKeyTagLockResponse": {
+      "type": "object"
     },
     "v1RegisterMethod": {
       "type": "string",
