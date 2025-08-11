@@ -117,6 +117,15 @@ func ListPreAuthKeys(tx *gorm.DB, userName string) ([]types.PreAuthKey, error) {
 	return keys, nil
 }
 
+func (hsdb *HSDatabase) GetPreAuthKey(
+	user string,
+	key string,
+) (*types.PreAuthKey, error) {
+	return Read(hsdb.DB, func(rx *gorm.DB) (*types.PreAuthKey, error) {
+		return GetPreAuthKey(rx, user, key)
+	})
+}
+
 // GetPreAuthKey returns a PreAuthKey for a given key.
 func GetPreAuthKey(tx *gorm.DB, user string, key string) (*types.PreAuthKey, error) {
 	pak, err := ValidatePreAuthKey(tx, key)
@@ -129,6 +138,73 @@ func GetPreAuthKey(tx *gorm.DB, user string, key string) (*types.PreAuthKey, err
 	}
 
 	return pak, nil
+}
+
+func (hsdb *HSDatabase) GetPreAuthKeysBySguUuids(
+	sguUuids []string,
+) ([]types.PreAuthKey, error) {
+	return Read(hsdb.DB, func(rx *gorm.DB) ([]types.PreAuthKey, error) {
+		return GetPreAuthKeysBySguUuids(rx, sguUuids)
+	})
+}
+
+// GetPreAuthKeysBySguUuids returns PreAuthKeys for a given sguUuid.
+func GetPreAuthKeysBySguUuids(
+	tx *gorm.DB,
+	sguUuids []string,
+) ([]types.PreAuthKey, error) {
+	var tagSguUuids []string
+	for _, sguUuid := range sguUuids {
+		tag := fmt.Sprintf("tag:sguser_%v", sguUuid)
+		tagSguUuids = append(tagSguUuids, tag)
+	}
+
+	preAuthKeys := []types.PreAuthKey{}
+	if err := tx.Preload("User").Preload("ACLTags").
+		Joins("JOIN pre_auth_key_acl_tags ON pre_auth_keys.id = pre_auth_key_acl_tags.pre_auth_key_id").
+		Where("pre_auth_key_acl_tags.tag IN ?", tagSguUuids).
+		Find(&preAuthKeys).Error; err != nil {
+		return nil, err
+	}
+
+	return preAuthKeys, nil
+}
+
+func (hsdb *HSDatabase) GetPreAuthKeysByClientUuids(
+	clientUuids []string,
+) ([]types.PreAuthKey, error) {
+	return Read(hsdb.DB, func(rx *gorm.DB) ([]types.PreAuthKey, error) {
+		return GetPreAuthKeysByClientUuids(rx, clientUuids)
+	})
+}
+
+// GetPreAuthKeysByClientUuids returns PreAuthKeys for given clientUuids.
+func GetPreAuthKeysByClientUuids(
+	tx *gorm.DB,
+	clientUuids []string,
+) ([]types.PreAuthKey, error) {
+	var tagClientUuids []string
+
+	for _, clientUuid := range clientUuids {
+		tag := fmt.Sprintf("tag:client_%v", clientUuid)
+		tagClientUuids = append(tagClientUuids, tag)
+	}
+
+	preAuthKeys := []types.PreAuthKey{}
+	if err := tx.Preload("User").Preload("ACLTags").
+		Joins("JOIN pre_auth_key_acl_tags ON pre_auth_keys.id = pre_auth_key_acl_tags.pre_auth_key_id").
+		Where("pre_auth_key_acl_tags.tag IN ?", tagClientUuids).
+		Find(&preAuthKeys).Error; err != nil {
+		return nil, err
+	}
+
+	return preAuthKeys, nil
+}
+
+func (hsdb *HSDatabase) DestroyPreAuthKey(pak types.PreAuthKey) error {
+	return hsdb.Write(func(tx *gorm.DB) error {
+		return DestroyPreAuthKey(tx, pak)
+	})
 }
 
 // DestroyPreAuthKey destroys a preauthkey. Returns error if the PreAuthKey
@@ -153,7 +229,7 @@ func (hsdb *HSDatabase) ExpirePreAuthKey(k *types.PreAuthKey) error {
 	})
 }
 
-// MarkExpirePreAuthKey marks a PreAuthKey as expired.
+// ExpirePreAuthKey marks a PreAuthKey as expired.
 func ExpirePreAuthKey(tx *gorm.DB, k *types.PreAuthKey) error {
 	if err := tx.Model(&k).Update("Expiration", time.Now()).Error; err != nil {
 		return err
@@ -169,6 +245,62 @@ func UsePreAuthKey(tx *gorm.DB, k *types.PreAuthKey) error {
 		return fmt.Errorf("failed to update key used status in the database: %w", err)
 	}
 
+	return nil
+}
+
+func (hsdb *HSDatabase) DisablePreAuthKeys(k []types.PreAuthKey) error {
+	return hsdb.Write(func(tx *gorm.DB) error {
+		return DisablePreAuthKeys(tx, k)
+	})
+}
+
+// DisablePreAuthKeys marks PreAuthKeys as used and non-reusable.
+func DisablePreAuthKeys(tx *gorm.DB, k []types.PreAuthKey) error {
+	for idx := range k {
+		k[idx].Reusable = false
+		k[idx].Used = true
+	}
+
+	if err := tx.Save(&k).Error; err != nil {
+		return fmt.Errorf("failed to update keys used status in the database: %w", err)
+	}
+
+	return nil
+}
+
+func (hsdb *HSDatabase) EnablePreAuthKeys(k []types.PreAuthKey) error {
+	return hsdb.Write(func(tx *gorm.DB) error {
+		return EnablePreAuthKeys(tx, k)
+	})
+}
+
+// EnablePreAuthKeys marks PreAuthKeys as reusable.
+func EnablePreAuthKeys(tx *gorm.DB, k []types.PreAuthKey) error {
+	for idx := range k {
+		k[idx].Reusable = true
+	}
+
+	if err := tx.Save(&k).Error; err != nil {
+		return fmt.Errorf("failed to update keys used status in the database: %w", err)
+	}
+
+	return nil
+}
+
+func (hsdb *HSDatabase) DestroyPreAuthKeys(k []types.PreAuthKey) error {
+	return hsdb.Write(func(tx *gorm.DB) error {
+		return DestroyPreAuthKeys(tx, k)
+	})
+}
+
+// DestroyPreAuthKeys destroys preauthkeys. Returns error if the PreAuthKey
+// does not exist.
+func DestroyPreAuthKeys(tx *gorm.DB, k []types.PreAuthKey) error {
+	for _, key := range k {
+		if err := DestroyPreAuthKey(tx, key); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -192,34 +324,50 @@ func GetPreAuthKeyTagLock(tx *gorm.DB, tag string) (*PreAuthKeyTagLock, error) {
 }
 
 // GetPreAuthKeyTagLockBySguUuid returns a PreAuthKeyTagLock for a sgu_uuid.
-func (hsdb *HSDatabase) GetPreAuthKeyTagLockBySguUuid(sgu_uuid string) (*PreAuthKeyTagLock, error) {
+func (hsdb *HSDatabase) GetPreAuthKeyTagLockBySguUuid(
+	sgu_uuid string,
+) (*PreAuthKeyTagLock, error) {
 	return Read(hsdb.DB, func(rx *gorm.DB) (*PreAuthKeyTagLock, error) {
 		return GetPreAuthKeyTagLockBySguUuid(rx, sgu_uuid)
 	})
 }
 
-func GetPreAuthKeyTagLockBySguUuid(tx *gorm.DB, sgu_uuid string) (*PreAuthKeyTagLock, error) {
+func GetPreAuthKeyTagLockBySguUuid(
+	tx *gorm.DB,
+	sgu_uuid string,
+) (*PreAuthKeyTagLock, error) {
 	sguserTag := fmt.Sprintf("tag:sguser_%s", sgu_uuid)
 	return GetPreAuthKeyTagLock(tx, sguserTag)
 }
 
 // SetPreAuthKeyTagLock sets the lock status for a given SGUser UUID with optimized performance.
 // Uses existing query functions to avoid code duplication.
-func (hsdb *HSDatabase) SetPreAuthKeyTagLockBySguUuid(sgu_uuid string, isLock bool) error {
+func (hsdb *HSDatabase) SetPreAuthKeyTagLockBySguUuid(
+	sgu_uuid string,
+	isLock bool,
+) error {
 	_, err := Write(hsdb.DB, func(tx *gorm.DB) (bool, error) {
 		return SetPreAuthKeyTagLockBySguUuid(tx, sgu_uuid, isLock)
 	})
 	return err
 }
 
-func SetPreAuthKeyTagLockBySguUuid(tx *gorm.DB, sgu_uuid string, isLock bool) (bool, error) {
+func SetPreAuthKeyTagLockBySguUuid(
+	tx *gorm.DB,
+	sgu_uuid string,
+	isLock bool,
+) (bool, error) {
 	existingRecord, err := GetPreAuthKeyTagLockBySguUuid(tx, sgu_uuid)
 
 	if err == nil {
 		if existingRecord.IsLock != isLock {
 			existingRecord.IsLock = isLock
 			if err := tx.Model(&existingRecord).Where("tag = ?", existingRecord.Tag).Update("is_lock", isLock).Error; err != nil {
-				return false, fmt.Errorf("failed to update PreAuthKeyTagLock for UUID %s: %w", sgu_uuid, err)
+				return false, fmt.Errorf(
+					"failed to update PreAuthKeyTagLock for UUID %s: %w",
+					sgu_uuid,
+					err,
+				)
 			}
 		}
 		return true, nil
@@ -232,12 +380,20 @@ func SetPreAuthKeyTagLockBySguUuid(tx *gorm.DB, sgu_uuid string, isLock bool) (b
 			IsLock: isLock,
 		}
 		if err := tx.Create(&newRecord).Error; err != nil {
-			return false, fmt.Errorf("failed to create PreAuthKeyTagLock for UUID %s: %w", sgu_uuid, err)
+			return false, fmt.Errorf(
+				"failed to create PreAuthKeyTagLock for UUID %s: %w",
+				sgu_uuid,
+				err,
+			)
 		}
 		return true, nil
 	}
 
-	return false, fmt.Errorf("failed to query PreAuthKeyTagLock for UUID %s: %w", sgu_uuid, err)
+	return false, fmt.Errorf(
+		"failed to query PreAuthKeyTagLock for UUID %s: %w",
+		sgu_uuid,
+		err,
+	)
 }
 
 // CheckSGUserTagLock check SGUser_tag of preauthkeys. Returns error if the SGUser_tag is Locked.
