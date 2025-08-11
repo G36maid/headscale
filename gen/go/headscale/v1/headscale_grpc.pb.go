@@ -26,6 +26,8 @@ const (
 	HeadscaleService_ListUsers_FullMethodName               = "/headscale.v1.HeadscaleService/ListUsers"
 	HeadscaleService_CreatePreAuthKey_FullMethodName        = "/headscale.v1.HeadscaleService/CreatePreAuthKey"
 	HeadscaleService_ExpirePreAuthKey_FullMethodName        = "/headscale.v1.HeadscaleService/ExpirePreAuthKey"
+	HeadscaleService_EnablePreAuthKeys_FullMethodName       = "/headscale.v1.HeadscaleService/EnablePreAuthKeys"
+	HeadscaleService_RemovePreAuthKeys_FullMethodName       = "/headscale.v1.HeadscaleService/RemovePreAuthKeys"
 	HeadscaleService_ListPreAuthKeys_FullMethodName         = "/headscale.v1.HeadscaleService/ListPreAuthKeys"
 	HeadscaleService_LockPreAuthKeyTagLock_FullMethodName   = "/headscale.v1.HeadscaleService/LockPreAuthKeyTagLock"
 	HeadscaleService_UnlockPreAuthKeyTagLock_FullMethodName = "/headscale.v1.HeadscaleService/UnlockPreAuthKeyTagLock"
@@ -80,6 +82,8 @@ type HeadscaleServiceClient interface {
 	// --- PreAuthKeys start ---
 	CreatePreAuthKey(ctx context.Context, in *CreatePreAuthKeyRequest, opts ...grpc.CallOption) (*CreatePreAuthKeyResponse, error)
 	ExpirePreAuthKey(ctx context.Context, in *ExpirePreAuthKeyRequest, opts ...grpc.CallOption) (*ExpirePreAuthKeyResponse, error)
+	EnablePreAuthKeys(ctx context.Context, in *PreAuthKeysRequest, opts ...grpc.CallOption) (*PreAuthKeysResponse, error)
+	RemovePreAuthKeys(ctx context.Context, in *PreAuthKeysRequest, opts ...grpc.CallOption) (*PreAuthKeysResponse, error)
 	ListPreAuthKeys(ctx context.Context, in *ListPreAuthKeysRequest, opts ...grpc.CallOption) (*ListPreAuthKeysResponse, error)
 	LockPreAuthKeyTagLock(ctx context.Context, in *PreAuthKeyTagLockRequest, opts ...grpc.CallOption) (*PreAuthKeyTagLockResponse, error)
 	UnlockPreAuthKeyTagLock(ctx context.Context, in *PreAuthKeyTagLockRequest, opts ...grpc.CallOption) (*PreAuthKeyTagLockResponse, error)
@@ -198,6 +202,26 @@ func (c *headscaleServiceClient) ExpirePreAuthKey(ctx context.Context, in *Expir
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ExpirePreAuthKeyResponse)
 	err := c.cc.Invoke(ctx, HeadscaleService_ExpirePreAuthKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) EnablePreAuthKeys(ctx context.Context, in *PreAuthKeysRequest, opts ...grpc.CallOption) (*PreAuthKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreAuthKeysResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_EnablePreAuthKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *headscaleServiceClient) RemovePreAuthKeys(ctx context.Context, in *PreAuthKeysRequest, opts ...grpc.CallOption) (*PreAuthKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreAuthKeysResponse)
+	err := c.cc.Invoke(ctx, HeadscaleService_RemovePreAuthKeys_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -607,6 +631,8 @@ type HeadscaleServiceServer interface {
 	// --- PreAuthKeys start ---
 	CreatePreAuthKey(context.Context, *CreatePreAuthKeyRequest) (*CreatePreAuthKeyResponse, error)
 	ExpirePreAuthKey(context.Context, *ExpirePreAuthKeyRequest) (*ExpirePreAuthKeyResponse, error)
+	EnablePreAuthKeys(context.Context, *PreAuthKeysRequest) (*PreAuthKeysResponse, error)
+	RemovePreAuthKeys(context.Context, *PreAuthKeysRequest) (*PreAuthKeysResponse, error)
 	ListPreAuthKeys(context.Context, *ListPreAuthKeysRequest) (*ListPreAuthKeysResponse, error)
 	LockPreAuthKeyTagLock(context.Context, *PreAuthKeyTagLockRequest) (*PreAuthKeyTagLockResponse, error)
 	UnlockPreAuthKeyTagLock(context.Context, *PreAuthKeyTagLockRequest) (*PreAuthKeyTagLockResponse, error)
@@ -681,6 +707,12 @@ func (UnimplementedHeadscaleServiceServer) CreatePreAuthKey(context.Context, *Cr
 }
 func (UnimplementedHeadscaleServiceServer) ExpirePreAuthKey(context.Context, *ExpirePreAuthKeyRequest) (*ExpirePreAuthKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExpirePreAuthKey not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) EnablePreAuthKeys(context.Context, *PreAuthKeysRequest) (*PreAuthKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnablePreAuthKeys not implemented")
+}
+func (UnimplementedHeadscaleServiceServer) RemovePreAuthKeys(context.Context, *PreAuthKeysRequest) (*PreAuthKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemovePreAuthKeys not implemented")
 }
 func (UnimplementedHeadscaleServiceServer) ListPreAuthKeys(context.Context, *ListPreAuthKeysRequest) (*ListPreAuthKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPreAuthKeys not implemented")
@@ -942,6 +974,42 @@ func _HeadscaleService_ExpirePreAuthKey_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HeadscaleServiceServer).ExpirePreAuthKey(ctx, req.(*ExpirePreAuthKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_EnablePreAuthKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreAuthKeysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).EnablePreAuthKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_EnablePreAuthKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).EnablePreAuthKeys(ctx, req.(*PreAuthKeysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HeadscaleService_RemovePreAuthKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreAuthKeysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HeadscaleServiceServer).RemovePreAuthKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HeadscaleService_RemovePreAuthKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HeadscaleServiceServer).RemovePreAuthKeys(ctx, req.(*PreAuthKeysRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1682,6 +1750,14 @@ var HeadscaleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExpirePreAuthKey",
 			Handler:    _HeadscaleService_ExpirePreAuthKey_Handler,
+		},
+		{
+			MethodName: "EnablePreAuthKeys",
+			Handler:    _HeadscaleService_EnablePreAuthKeys_Handler,
+		},
+		{
+			MethodName: "RemovePreAuthKeys",
+			Handler:    _HeadscaleService_RemovePreAuthKeys_Handler,
 		},
 		{
 			MethodName: "ListPreAuthKeys",
