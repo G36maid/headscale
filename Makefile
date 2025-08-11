@@ -10,11 +10,9 @@ ifeq ($(filter $(GOOS), openbsd netbsd soloaris plan9), )
 else
 endif
 
-# GO_SOURCES = $(wildcard *.go)
-# PROTO_SOURCES = $(wildcard **/*.proto)
 GO_SOURCES = $(call rwildcard,,*.go)
-PROTO_SOURCES = $(call rwildcard,,*.proto)
-
+PROTO_SOURCES = $(call rwildcard,proto/,*.proto) # Scoping to proto directory
+DOC_SOURCES = $(call rwildcard,,*.{ts,js,md,yaml,yml,sass,css,scss,html}) CHANGELOG.md
 
 build:
 	nix build
@@ -35,16 +33,32 @@ test_integration:
 		golang:1 \
 		go run gotest.tools/gotestsum@latest -- -failfast ./... -timeout 120m -parallel 8
 
-lint:
-	golangci-lint run --fix --timeout 10m
+lint: lint-go lint-proto
 
-fmt:
-	prettier --write '**/**.{ts,js,md,yaml,yml,sass,css,scss,html}'
+lint-go: $(GO_SOURCES) go.mod go.sum
+	@echo "Linting Go code..."
+	golangci-lint run --timeout 10m
+
+lint-proto: $(PROTO_SOURCES)
+	@echo "Linting Protocol Buffer files..."
+	cd proto/ && buf lint
+
+fmt: fmt-go fmt-prettier fmt-proto
+
+fmt-go: $(GO_SOURCES)
+	@echo "Formatting Go code..."
+	gofumpt -l -w .
 	golines --max-len=88 --base-formatter=gofumpt -w $(GO_SOURCES)
-	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, AlignConsecutiveDeclarations: true, AlignConsecutiveAssignments: true, ColumnLimit: 0}" -i $(PROTO_SOURCES)
+	golangci-lint run --fix
 
-proto-lint:
-	cd proto/ && go run github.com/bufbuild/buf/cmd/buf lint
+fmt-prettier: $(DOC_SOURCES)
+	@echo "Formatting documentation and config files..."
+	prettier --write '**/*.{ts,js,md,yaml,yml,sass,css,scss,html}'
+	prettier --write --print-width 80 --prose-wrap always CHANGELOG.md
+
+fmt-proto: $(PROTO_SOURCES)
+	@echo "Formatting Protocol Buffer files..."
+	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, AlignConsecutiveDeclarations: true, AlignConsecutiveAssignments: true, ColumnLimit: 0}" -i $(PROTO_SOURCES)
 
 compress: build
 	upx --brute headscale
