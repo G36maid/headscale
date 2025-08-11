@@ -1,6 +1,6 @@
 syntax = "proto3";
 package headscale.v1;
-option  go_package = "github.com/juanfont/headscale/gen/go/v1";
+option go_package = "github.com/juanfont/headscale/gen/go/v1";
 
 import "google/api/annotations.proto";
 
@@ -13,339 +13,369 @@ import "headscale/v1/policy.proto";
 // import "headscale/v1/device.proto";
 
 service HeadscaleService {
-    // --- User start ---
-    rpc GetUser(GetUserRequest) returns (GetUserResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/user/{name}"
-        };
-    }
+  // --- User start ---
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/user/{name}"
+    };
+  }
 
-    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/user"
-            body: "*"
-        };
-    }
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/user"
+      body : "*"
+    };
+  }
 
-    rpc RenameUser(RenameUserRequest) returns (RenameUserResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/user/{old_name}/rename/{new_name}"
-        };
-    }
+  rpc RenameUser(RenameUserRequest) returns (RenameUserResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/user/{old_name}/rename/{new_name}"
+    };
+  }
 
-    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
-        option (google.api.http) = {
-            delete: "/api/v1/user/{name}"
-        };
-    }
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/user/{name}"
+    };
+  }
 
-    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/user"
-        };
-    }
-    // --- User end ---
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/user"
+    };
+  }
+  // --- User end ---
 
-    // --- PreAuthKeys start ---
-    rpc CreatePreAuthKey(CreatePreAuthKeyRequest) returns (CreatePreAuthKeyResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/preauthkey"
-            body: "*"
-        };
-    }
+  // --- PreAuthKeys start ---
+  rpc CreatePreAuthKey(CreatePreAuthKeyRequest)
+      returns (CreatePreAuthKeyResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/preauthkey"
+      body : "*"
+    };
+  }
 
-    rpc ExpirePreAuthKey(ExpirePreAuthKeyRequest) returns (ExpirePreAuthKeyResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/preauthkey/expire"
-            body: "*"
-        };
-    }
+  rpc ExpirePreAuthKey(ExpirePreAuthKeyRequest)
+      returns (ExpirePreAuthKeyResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/preauthkey/expire"
+      body : "*"
+    };
+  }
 
-    rpc ListPreAuthKeys(ListPreAuthKeysRequest) returns (ListPreAuthKeysResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/preauthkey"
-        };
-    }
+  rpc EnablePreAuthKeys(PreAuthKeysRequest) returns (PreAuthKeysResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/preauthkeys/enable"
+      body : "*"
+    };
+  }
 
-    rpc LockPreAuthKeyTagLock(PreAuthKeyTagLockRequest) returns(PreAuthKeyTagLockResponse) {
-        option(google.api.http) = {
-            post : "/api/v1/preauthkey/lock"
-            body : "*"
-        };
-    }
+  rpc RemovePreAuthKeys(PreAuthKeysRequest) returns (PreAuthKeysResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/preauthkeys/remove"
+      body : "*"
+    };
+  }
 
-    rpc UnlockPreAuthKeyTagLock(PreAuthKeyTagLockRequest) returns(PreAuthKeyTagLockResponse) {
-        option(google.api.http) = {
-            post : "/api/v1/preauthkey/unlock"
-            body : "*"
-        };
-    }
+  rpc ListPreAuthKeys(ListPreAuthKeysRequest)
+      returns (ListPreAuthKeysResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/preauthkey"
+    };
+  }
 
-    // --- PreAuthKeys end ---
+  rpc LockPreAuthKeyTagLock(PreAuthKeyTagLockRequest)
+      returns (PreAuthKeyTagLockResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/preauthkey/lock"
+      body : "*"
+    };
+  }
 
-    // --- Node start ---
-    rpc DebugCreateNode(DebugCreateNodeRequest) returns (DebugCreateNodeResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/debug/node"
-            body: "*"
-        };
-    }
+  rpc UnlockPreAuthKeyTagLock(PreAuthKeyTagLockRequest)
+      returns (PreAuthKeyTagLockResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/preauthkey/unlock"
+      body : "*"
+    };
+  }
 
-    rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/node/{node_id}"
-        };
-    }
+  // --- PreAuthKeys end ---
 
-    rpc SetTags(SetTagsRequest) returns (SetTagsResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/node/{node_id}/tags"
-            body: "*"
-        };
-    }
+  // --- Node start ---
+  rpc DebugCreateNode(DebugCreateNodeRequest)
+      returns (DebugCreateNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/debug/node"
+      body : "*"
+    };
+  }
 
-    rpc RegisterNode(RegisterNodeRequest) returns (RegisterNodeResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/node/register"
-        };
-    }
+  rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/node/{node_id}"
+    };
+  }
 
-    rpc DeleteNode(DeleteNodeRequest) returns (DeleteNodeResponse) {
-        option (google.api.http) = {
-            delete: "/api/v1/node/{node_id}"
-        };
-    }
+  rpc SetTags(SetTagsRequest) returns (SetTagsResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/{node_id}/tags"
+      body : "*"
+    };
+  }
 
-    rpc ExpireNode(ExpireNodeRequest) returns (ExpireNodeResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/node/{node_id}/expire"
-        };
-    }
+  rpc RegisterNode(RegisterNodeRequest) returns (RegisterNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/register"
+    };
+  }
 
-    rpc RenameNode(RenameNodeRequest) returns (RenameNodeResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/node/{node_id}/rename/{new_name}"
-        };
-    }
+  rpc DeleteNode(DeleteNodeRequest) returns (DeleteNodeResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/node/{node_id}"
+    };
+  }
 
-    rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/node"
-        };
-    }
+  rpc ExpireNode(ExpireNodeRequest) returns (ExpireNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/{node_id}/expire"
+    };
+  }
 
-    rpc MoveNode(MoveNodeRequest) returns (MoveNodeResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/node/{node_id}/user"
-        };
-    }
+  rpc ExpireNodes(ExpireNodeRequest) returns (ExpireNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/machines/expire"
+      body : "*"
+    };
+  }
 
-    rpc BackfillNodeIPs(BackfillNodeIPsRequest) returns (BackfillNodeIPsResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/node/backfillips"
-        };
-    }
+  rpc RenameNode(RenameNodeRequest) returns (RenameNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/{node_id}/rename/{new_name}"
+    };
+  }
 
-    // --- Node end ---
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/node"
+    };
+  }
 
-    // --- Route start ---
-    rpc GetRoutes(GetRoutesRequest) returns (GetRoutesResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/routes"
-        };
-    }
+  rpc MoveNode(MoveNodeRequest) returns (MoveNodeResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/{node_id}/user"
+    };
+  }
 
-    rpc EnableRoute(EnableRouteRequest) returns (EnableRouteResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/routes/{route_id}/enable"
-        };
-    }
+  rpc BackfillNodeIPs(BackfillNodeIPsRequest)
+      returns (BackfillNodeIPsResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/node/backfillips"
+    };
+  }
 
-    rpc DisableRoute(DisableRouteRequest) returns (DisableRouteResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/routes/{route_id}/disable"
-        };
-    }
+  // --- Node end ---
 
-    rpc GetNodeRoutes(GetNodeRoutesRequest) returns (GetNodeRoutesResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/node/{node_id}/routes"
-        };
-    }
+  // --- Route start ---
+  rpc GetRoutes(GetRoutesRequest) returns (GetRoutesResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/routes"
+    };
+  }
 
-    rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse) {
-        option (google.api.http) = {
-            delete: "/api/v1/routes/{route_id}"
-        };
-    }
+  rpc EnableRoute(EnableRouteRequest) returns (EnableRouteResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/routes/{route_id}/enable"
+    };
+  }
 
-    // --- Route end ---
+  rpc DisableRoute(DisableRouteRequest) returns (DisableRouteResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/routes/{route_id}/disable"
+    };
+  }
 
-    // --- ApiKeys start ---
-    rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/apikey"
-            body: "*"
-        };
-    }
+  rpc GetNodeRoutes(GetNodeRoutesRequest) returns (GetNodeRoutesResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/node/{node_id}/routes"
+    };
+  }
 
-    rpc ExpireApiKey(ExpireApiKeyRequest) returns (ExpireApiKeyResponse) {
-        option (google.api.http) = {
-            post: "/api/v1/apikey/expire"
-            body: "*"
-        };
-    }
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/routes/{route_id}"
+    };
+  }
 
-    rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/apikey"
-        };
-    }
+  // --- Route end ---
 
-    rpc DeleteApiKey(DeleteApiKeyRequest) returns (DeleteApiKeyResponse) {
-        option (google.api.http) = {
-            delete: "/api/v1/apikey/{prefix}"
-        };
-    }
-    // --- ApiKeys end ---
+  // --- ApiKeys start ---
+  rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/apikey"
+      body : "*"
+    };
+  }
 
-    // --- Policy start ---
-    rpc GetPolicy(GetPolicyRequest) returns (GetPolicyResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/policy"
-        };
-    }
+  rpc ExpireApiKey(ExpireApiKeyRequest) returns (ExpireApiKeyResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/apikey/expire"
+      body : "*"
+    };
+  }
 
-    rpc SetPolicy(SetPolicyRequest) returns (SetPolicyResponse) {
-        option (google.api.http) = {
-            put: "/api/v1/policy"
-            body: "*"
-        };
-    }
-    // --- Policy end ---
+  rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/apikey"
+    };
+  }
 
-    // --- ACL start ---
-    rpc ACLCreateGroup(ACLGroupRequest) returns(ACLGroupResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/group/{group_name}"
-        };
-    }
+  rpc DeleteApiKey(DeleteApiKeyRequest) returns (DeleteApiKeyResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/apikey/{prefix}"
+    };
+  }
+  // --- ApiKeys end ---
 
-    rpc ACLGroupAddUser(ACLGroupUserRequest) returns(ACLGroupUserResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/group/{group_name}/{username}"
-        };
-    }
+  // --- Policy start ---
+  rpc GetPolicy(GetPolicyRequest) returns (GetPolicyResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/policy"
+    };
+  }
 
-    rpc ACLGroupRemoveUser(ACLGroupUserRequest) returns(ACLGroupUserResponse) {
-        option(google.api.http) = {
-            delete: "/api/v1/acl/group/{group_name}/{username}"
-        };
-    }
+  rpc SetPolicy(SetPolicyRequest) returns (SetPolicyResponse) {
+    option (google.api.http) = {
+      put : "/api/v1/policy"
+      body : "*"
+    };
+  }
+  // --- Policy end ---
 
-    rpc ACLRemoveGroup(ACLGroupRequest) returns(ACLGroupResponse) {
-        option(google.api.http) = {
-            delete: "/api/v1/acl/group/{group_name}"
-        };
-    }
+  // --- ACL start ---
+  rpc ACLCreateGroup(ACLGroupRequest) returns (ACLGroupResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/group/{group_name}"
+    };
+  }
 
-    rpc ACLBindHostname(ACLHostnameRequest) returns(ACLHostnameResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/host/{hostname}"
-            body: "*"
-        };
-    }
+  rpc ACLGroupAddUser(ACLGroupUserRequest) returns (ACLGroupUserResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/group/{group_name}/{username}"
+    };
+  }
 
-    rpc ACLUpdateHostname(ACLHostnameRequest) returns(ACLHostnameResponse) {
-        option(google.api.http) = {
-            patch: "/api/v1/acl/host/{hostname}"
-            body: "*"
-        };
-    }
+  rpc ACLGroupRemoveUser(ACLGroupUserRequest) returns (ACLGroupUserResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/acl/group/{group_name}/{username}"
+    };
+  }
 
-    rpc ACLRemoveHostname(ACLHostnameRequest) returns(ACLHostnameResponse) {
-        option(google.api.http) = {
-            delete: "/api/v1/acl/host/{hostname}"
-        };
-    }
+  rpc ACLRemoveGroup(ACLGroupRequest) returns (ACLGroupResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/acl/group/{group_name}"
+    };
+  }
 
-    rpc ACLCreateTag(ACLTagRequest) returns(ACLTagResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/tag/{tag}"
-        };
-    }
+  rpc ACLBindHostname(ACLHostnameRequest) returns (ACLHostnameResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/host/{hostname}"
+      body : "*"
+    };
+  }
 
-    rpc ACLRemoveTag(ACLTagRequest) returns(ACLTagResponse) {
-        option(google.api.http) = {
-            delete: "/api/v1/acl/tag/{tag}"
-        };
-    }
+  rpc ACLUpdateHostname(ACLHostnameRequest) returns (ACLHostnameResponse) {
+    option (google.api.http) = {
+      patch : "/api/v1/acl/host/{hostname}"
+      body : "*"
+    };
+  }
 
-    rpc ACLCreateRule(ACLRuleRequest) returns(ACLRuleResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/accept"
-            body: "*"
-        };
-    }
+  rpc ACLRemoveHostname(ACLHostnameRequest) returns (ACLHostnameResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/acl/host/{hostname}"
+    };
+  }
 
-    rpc ACLRemoveRule(ACLRuleRequest) returns(ACLRuleResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/deny"
-            body: "*"
-        };
-    }
+  rpc ACLCreateTag(ACLTagRequest) returns (ACLTagResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/tag/{tag}"
+    };
+  }
 
-    rpc ACLForceRemoveRule(ACLRuleRequest) returns(ACLRuleResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/remove"
-            body: "*"
-        };
-    }
+  rpc ACLRemoveTag(ACLTagRequest) returns (ACLTagResponse) {
+    option (google.api.http) = {
+      delete : "/api/v1/acl/tag/{tag}"
+    };
+  }
 
-    rpc ACLRuleInclude(ACLRuleRequest) returns(ACLRuleResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/include"
-            body: "*"
-        };
-    }
+  rpc ACLCreateRule(ACLRuleRequest) returns (ACLRuleResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/accept"
+      body : "*"
+    };
+  }
 
-    rpc ACLRuleExclude(ACLRuleRequest) returns(ACLRuleResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/exclude"
-            body: "*"
-        };
-    }
+  rpc ACLRemoveRule(ACLRuleRequest) returns (ACLRuleResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/deny"
+      body : "*"
+    };
+  }
 
-    rpc ACLCtrl(ACLCtrlRequest) returns(ACLCtrlResponse) {
-        option(google.api.http) = {
-            post: "/api/v1/acl/ctrl/{action}"
-        };
-    }
+  rpc ACLForceRemoveRule(ACLRuleRequest) returns (ACLRuleResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/remove"
+      body : "*"
+    };
+  }
 
-    // --- ACL end ---
+  rpc ACLRuleInclude(ACLRuleRequest) returns (ACLRuleResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/include"
+      body : "*"
+    };
+  }
 
-    // Implement Tailscale API
-    // rpc GetDevice(GetDeviceRequest) returns(GetDeviceResponse) {
-    //     option(google.api.http) = {
-    //         get : "/api/v1/device/{id}"
-    //     };
-    // }
+  rpc ACLRuleExclude(ACLRuleRequest) returns (ACLRuleResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/exclude"
+      body : "*"
+    };
+  }
 
-    // rpc DeleteDevice(DeleteDeviceRequest) returns(DeleteDeviceResponse) {
-    //     option(google.api.http) = {
-    //         delete : "/api/v1/device/{id}"
-    //     };
-    // }
+  rpc ACLCtrl(ACLCtrlRequest) returns (ACLCtrlResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/acl/ctrl/{action}"
+    };
+  }
 
-    // rpc GetDeviceRoutes(GetDeviceRoutesRequest) returns(GetDeviceRoutesResponse) {
-    //     option(google.api.http) = {
-    //         get : "/api/v1/device/{id}/routes"
-    //     };
-    // }
+  // --- ACL end ---
 
-    // rpc EnableDeviceRoutes(EnableDeviceRoutesRequest) returns(EnableDeviceRoutesResponse) {
-    //     option(google.api.http) = {
-    //         post : "/api/v1/device/{id}/routes"
-    //     };
-    // }
+  // Implement Tailscale API
+  // rpc GetDevice(GetDeviceRequest) returns(GetDeviceResponse) {
+  //     option(google.api.http) = {
+  //         get : "/api/v1/device/{id}"
+  //     };
+  // }
+
+  // rpc DeleteDevice(DeleteDeviceRequest) returns(DeleteDeviceResponse) {
+  //     option(google.api.http) = {
+  //         delete : "/api/v1/device/{id}"
+  //     };
+  // }
+
+  // rpc GetDeviceRoutes(GetDeviceRoutesRequest)
+  // returns(GetDeviceRoutesResponse) {
+  //     option(google.api.http) = {
+  //         get : "/api/v1/device/{id}/routes"
+  //     };
+  // }
+
+  // rpc EnableDeviceRoutes(EnableDeviceRoutesRequest)
+  // returns(EnableDeviceRoutesResponse) {
+  //     option(google.api.http) = {
+  //         post : "/api/v1/device/{id}/routes"
+  //     };
+  // }
 }
