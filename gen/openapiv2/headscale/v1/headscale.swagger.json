@@ -1196,6 +1196,70 @@
         ]
       }
     },
+    "/api/v1/preauthkeys/enable": {
+      "post": {
+        "operationId": "HeadscaleService_EnablePreAuthKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeysResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeysRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HeadscaleService"
+        ]
+      }
+    },
+    "/api/v1/preauthkeys/remove": {
+      "post": {
+        "operationId": "HeadscaleService_RemovePreAuthKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeysResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PreAuthKeysRequest"
+            }
+          }
+        ],
+        "tags": [
+          "HeadscaleService"
+        ]
+      }
+    },
     "/api/v1/routes": {
       "get": {
         "summary": "--- Route start ---",
@@ -1962,6 +2026,26 @@
       }
     },
     "v1PreAuthKeyTagLockResponse": {
+      "type": "object"
+    },
+    "v1PreAuthKeysRequest": {
+      "type": "object",
+      "properties": {
+        "sguUuids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clientUuids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "v1PreAuthKeysResponse": {
       "type": "object"
     },
     "v1RegisterMethod": {
