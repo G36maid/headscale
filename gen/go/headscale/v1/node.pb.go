@@ -694,6 +694,118 @@ func (x *ExpireNodeResponse) GetNode() *Node {
 	return nil
 }
 
+type ExpireNodesRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	RecoveryInterval int32                  `protobuf:"varint,1,opt,name=recovery_interval,json=recoveryInterval,proto3" json:"recovery_interval,omitempty"`
+	SguUuids         []string               `protobuf:"bytes,2,rep,name=sgu_uuids,json=sguUuids,proto3" json:"sgu_uuids,omitempty"`
+	ClientUuids      []string               `protobuf:"bytes,3,rep,name=client_uuids,json=clientUuids,proto3" json:"client_uuids,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ExpireNodesRequest) Reset() {
+	*x = ExpireNodesRequest{}
+	mi := &file_headscale_v1_node_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpireNodesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpireNodesRequest) ProtoMessage() {}
+
+func (x *ExpireNodesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_node_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpireNodesRequest.ProtoReflect.Descriptor instead.
+func (*ExpireNodesRequest) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ExpireNodesRequest) GetRecoveryInterval() int32 {
+	if x != nil {
+		return x.RecoveryInterval
+	}
+	return 0
+}
+
+func (x *ExpireNodesRequest) GetSguUuids() []string {
+	if x != nil {
+		return x.SguUuids
+	}
+	return nil
+}
+
+func (x *ExpireNodesRequest) GetClientUuids() []string {
+	if x != nil {
+		return x.ClientUuids
+	}
+	return nil
+}
+
+type ExpireNodesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SguUuids      []string               `protobuf:"bytes,1,rep,name=sgu_uuids,json=sguUuids,proto3" json:"sgu_uuids,omitempty"`
+	ClientUuids   []string               `protobuf:"bytes,2,rep,name=client_uuids,json=clientUuids,proto3" json:"client_uuids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExpireNodesResponse) Reset() {
+	*x = ExpireNodesResponse{}
+	mi := &file_headscale_v1_node_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExpireNodesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExpireNodesResponse) ProtoMessage() {}
+
+func (x *ExpireNodesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_headscale_v1_node_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExpireNodesResponse.ProtoReflect.Descriptor instead.
+func (*ExpireNodesResponse) Descriptor() ([]byte, []int) {
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ExpireNodesResponse) GetSguUuids() []string {
+	if x != nil {
+		return x.SguUuids
+	}
+	return nil
+}
+
+func (x *ExpireNodesResponse) GetClientUuids() []string {
+	if x != nil {
+		return x.ClientUuids
+	}
+	return nil
+}
+
 type RenameNodeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NodeId        uint64                 `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
@@ -704,7 +816,7 @@ type RenameNodeRequest struct {
 
 func (x *RenameNodeRequest) Reset() {
 	*x = RenameNodeRequest{}
-	mi := &file_headscale_v1_node_proto_msgTypes[11]
+	mi := &file_headscale_v1_node_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -716,7 +828,7 @@ func (x *RenameNodeRequest) String() string {
 func (*RenameNodeRequest) ProtoMessage() {}
 
 func (x *RenameNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[11]
+	mi := &file_headscale_v1_node_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +841,7 @@ func (x *RenameNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameNodeRequest.ProtoReflect.Descriptor instead.
 func (*RenameNodeRequest) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{11}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RenameNodeRequest) GetNodeId() uint64 {
@@ -755,7 +867,7 @@ type RenameNodeResponse struct {
 
 func (x *RenameNodeResponse) Reset() {
 	*x = RenameNodeResponse{}
-	mi := &file_headscale_v1_node_proto_msgTypes[12]
+	mi := &file_headscale_v1_node_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +879,7 @@ func (x *RenameNodeResponse) String() string {
 func (*RenameNodeResponse) ProtoMessage() {}
 
 func (x *RenameNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[12]
+	mi := &file_headscale_v1_node_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +892,7 @@ func (x *RenameNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameNodeResponse.ProtoReflect.Descriptor instead.
 func (*RenameNodeResponse) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{12}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RenameNodeResponse) GetNode() *Node {
@@ -799,7 +911,7 @@ type ListNodesRequest struct {
 
 func (x *ListNodesRequest) Reset() {
 	*x = ListNodesRequest{}
-	mi := &file_headscale_v1_node_proto_msgTypes[13]
+	mi := &file_headscale_v1_node_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -811,7 +923,7 @@ func (x *ListNodesRequest) String() string {
 func (*ListNodesRequest) ProtoMessage() {}
 
 func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[13]
+	mi := &file_headscale_v1_node_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -824,7 +936,7 @@ func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesRequest.ProtoReflect.Descriptor instead.
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{13}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListNodesRequest) GetUser() string {
@@ -843,7 +955,7 @@ type ListNodesResponse struct {
 
 func (x *ListNodesResponse) Reset() {
 	*x = ListNodesResponse{}
-	mi := &file_headscale_v1_node_proto_msgTypes[14]
+	mi := &file_headscale_v1_node_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -855,7 +967,7 @@ func (x *ListNodesResponse) String() string {
 func (*ListNodesResponse) ProtoMessage() {}
 
 func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[14]
+	mi := &file_headscale_v1_node_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -868,7 +980,7 @@ func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{14}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListNodesResponse) GetNodes() []*Node {
@@ -888,7 +1000,7 @@ type MoveNodeRequest struct {
 
 func (x *MoveNodeRequest) Reset() {
 	*x = MoveNodeRequest{}
-	mi := &file_headscale_v1_node_proto_msgTypes[15]
+	mi := &file_headscale_v1_node_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -900,7 +1012,7 @@ func (x *MoveNodeRequest) String() string {
 func (*MoveNodeRequest) ProtoMessage() {}
 
 func (x *MoveNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[15]
+	mi := &file_headscale_v1_node_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +1025,7 @@ func (x *MoveNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveNodeRequest.ProtoReflect.Descriptor instead.
 func (*MoveNodeRequest) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{15}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *MoveNodeRequest) GetNodeId() uint64 {
@@ -939,7 +1051,7 @@ type MoveNodeResponse struct {
 
 func (x *MoveNodeResponse) Reset() {
 	*x = MoveNodeResponse{}
-	mi := &file_headscale_v1_node_proto_msgTypes[16]
+	mi := &file_headscale_v1_node_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -951,7 +1063,7 @@ func (x *MoveNodeResponse) String() string {
 func (*MoveNodeResponse) ProtoMessage() {}
 
 func (x *MoveNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[16]
+	mi := &file_headscale_v1_node_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -964,7 +1076,7 @@ func (x *MoveNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveNodeResponse.ProtoReflect.Descriptor instead.
 func (*MoveNodeResponse) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{16}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *MoveNodeResponse) GetNode() *Node {
@@ -986,7 +1098,7 @@ type DebugCreateNodeRequest struct {
 
 func (x *DebugCreateNodeRequest) Reset() {
 	*x = DebugCreateNodeRequest{}
-	mi := &file_headscale_v1_node_proto_msgTypes[17]
+	mi := &file_headscale_v1_node_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -998,7 +1110,7 @@ func (x *DebugCreateNodeRequest) String() string {
 func (*DebugCreateNodeRequest) ProtoMessage() {}
 
 func (x *DebugCreateNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[17]
+	mi := &file_headscale_v1_node_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1011,7 +1123,7 @@ func (x *DebugCreateNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebugCreateNodeRequest.ProtoReflect.Descriptor instead.
 func (*DebugCreateNodeRequest) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{17}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *DebugCreateNodeRequest) GetUser() string {
@@ -1051,7 +1163,7 @@ type DebugCreateNodeResponse struct {
 
 func (x *DebugCreateNodeResponse) Reset() {
 	*x = DebugCreateNodeResponse{}
-	mi := &file_headscale_v1_node_proto_msgTypes[18]
+	mi := &file_headscale_v1_node_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1063,7 +1175,7 @@ func (x *DebugCreateNodeResponse) String() string {
 func (*DebugCreateNodeResponse) ProtoMessage() {}
 
 func (x *DebugCreateNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[18]
+	mi := &file_headscale_v1_node_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1076,7 +1188,7 @@ func (x *DebugCreateNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebugCreateNodeResponse.ProtoReflect.Descriptor instead.
 func (*DebugCreateNodeResponse) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{18}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DebugCreateNodeResponse) GetNode() *Node {
@@ -1095,7 +1207,7 @@ type BackfillNodeIPsRequest struct {
 
 func (x *BackfillNodeIPsRequest) Reset() {
 	*x = BackfillNodeIPsRequest{}
-	mi := &file_headscale_v1_node_proto_msgTypes[19]
+	mi := &file_headscale_v1_node_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1107,7 +1219,7 @@ func (x *BackfillNodeIPsRequest) String() string {
 func (*BackfillNodeIPsRequest) ProtoMessage() {}
 
 func (x *BackfillNodeIPsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[19]
+	mi := &file_headscale_v1_node_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1120,7 +1232,7 @@ func (x *BackfillNodeIPsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BackfillNodeIPsRequest.ProtoReflect.Descriptor instead.
 func (*BackfillNodeIPsRequest) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{19}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *BackfillNodeIPsRequest) GetConfirmed() bool {
@@ -1139,7 +1251,7 @@ type BackfillNodeIPsResponse struct {
 
 func (x *BackfillNodeIPsResponse) Reset() {
 	*x = BackfillNodeIPsResponse{}
-	mi := &file_headscale_v1_node_proto_msgTypes[20]
+	mi := &file_headscale_v1_node_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1151,7 +1263,7 @@ func (x *BackfillNodeIPsResponse) String() string {
 func (*BackfillNodeIPsResponse) ProtoMessage() {}
 
 func (x *BackfillNodeIPsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_headscale_v1_node_proto_msgTypes[20]
+	mi := &file_headscale_v1_node_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1164,7 +1276,7 @@ func (x *BackfillNodeIPsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BackfillNodeIPsResponse.ProtoReflect.Descriptor instead.
 func (*BackfillNodeIPsResponse) Descriptor() ([]byte, []int) {
-	return file_headscale_v1_node_proto_rawDescGZIP(), []int{20}
+	return file_headscale_v1_node_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *BackfillNodeIPsResponse) GetChanges() []string {
@@ -1225,7 +1337,14 @@ const file_headscale_v1_node_proto_rawDesc = "" +
 	"\x11ExpireNodeRequest\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\x04R\x06nodeId\"<\n" +
 	"\x12ExpireNodeResponse\x12&\n" +
-	"\x04node\x18\x01 \x01(\v2\x12.headscale.v1.NodeR\x04node\"G\n" +
+	"\x04node\x18\x01 \x01(\v2\x12.headscale.v1.NodeR\x04node\"\x81\x01\n" +
+	"\x12ExpireNodesRequest\x12+\n" +
+	"\x11recovery_interval\x18\x01 \x01(\x05R\x10recoveryInterval\x12\x1b\n" +
+	"\tsgu_uuids\x18\x02 \x03(\tR\bsguUuids\x12!\n" +
+	"\fclient_uuids\x18\x03 \x03(\tR\vclientUuids\"U\n" +
+	"\x13ExpireNodesResponse\x12\x1b\n" +
+	"\tsgu_uuids\x18\x01 \x03(\tR\bsguUuids\x12!\n" +
+	"\fclient_uuids\x18\x02 \x03(\tR\vclientUuids\"G\n" +
 	"\x11RenameNodeRequest\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\x04R\x06nodeId\x12\x19\n" +
 	"\bnew_name\x18\x02 \x01(\tR\anewName\"<\n" +
@@ -1270,7 +1389,7 @@ func file_headscale_v1_node_proto_rawDescGZIP() []byte {
 }
 
 var file_headscale_v1_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_headscale_v1_node_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_headscale_v1_node_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_headscale_v1_node_proto_goTypes = []any{
 	(RegisterMethod)(0),             // 0: headscale.v1.RegisterMethod
 	(*Node)(nil),                    // 1: headscale.v1.Node
@@ -1284,26 +1403,28 @@ var file_headscale_v1_node_proto_goTypes = []any{
 	(*DeleteNodeResponse)(nil),      // 9: headscale.v1.DeleteNodeResponse
 	(*ExpireNodeRequest)(nil),       // 10: headscale.v1.ExpireNodeRequest
 	(*ExpireNodeResponse)(nil),      // 11: headscale.v1.ExpireNodeResponse
-	(*RenameNodeRequest)(nil),       // 12: headscale.v1.RenameNodeRequest
-	(*RenameNodeResponse)(nil),      // 13: headscale.v1.RenameNodeResponse
-	(*ListNodesRequest)(nil),        // 14: headscale.v1.ListNodesRequest
-	(*ListNodesResponse)(nil),       // 15: headscale.v1.ListNodesResponse
-	(*MoveNodeRequest)(nil),         // 16: headscale.v1.MoveNodeRequest
-	(*MoveNodeResponse)(nil),        // 17: headscale.v1.MoveNodeResponse
-	(*DebugCreateNodeRequest)(nil),  // 18: headscale.v1.DebugCreateNodeRequest
-	(*DebugCreateNodeResponse)(nil), // 19: headscale.v1.DebugCreateNodeResponse
-	(*BackfillNodeIPsRequest)(nil),  // 20: headscale.v1.BackfillNodeIPsRequest
-	(*BackfillNodeIPsResponse)(nil), // 21: headscale.v1.BackfillNodeIPsResponse
-	(*User)(nil),                    // 22: headscale.v1.User
-	(*timestamppb.Timestamp)(nil),   // 23: google.protobuf.Timestamp
-	(*PreAuthKey)(nil),              // 24: headscale.v1.PreAuthKey
+	(*ExpireNodesRequest)(nil),      // 12: headscale.v1.ExpireNodesRequest
+	(*ExpireNodesResponse)(nil),     // 13: headscale.v1.ExpireNodesResponse
+	(*RenameNodeRequest)(nil),       // 14: headscale.v1.RenameNodeRequest
+	(*RenameNodeResponse)(nil),      // 15: headscale.v1.RenameNodeResponse
+	(*ListNodesRequest)(nil),        // 16: headscale.v1.ListNodesRequest
+	(*ListNodesResponse)(nil),       // 17: headscale.v1.ListNodesResponse
+	(*MoveNodeRequest)(nil),         // 18: headscale.v1.MoveNodeRequest
+	(*MoveNodeResponse)(nil),        // 19: headscale.v1.MoveNodeResponse
+	(*DebugCreateNodeRequest)(nil),  // 20: headscale.v1.DebugCreateNodeRequest
+	(*DebugCreateNodeResponse)(nil), // 21: headscale.v1.DebugCreateNodeResponse
+	(*BackfillNodeIPsRequest)(nil),  // 22: headscale.v1.BackfillNodeIPsRequest
+	(*BackfillNodeIPsResponse)(nil), // 23: headscale.v1.BackfillNodeIPsResponse
+	(*User)(nil),                    // 24: headscale.v1.User
+	(*timestamppb.Timestamp)(nil),   // 25: google.protobuf.Timestamp
+	(*PreAuthKey)(nil),              // 26: headscale.v1.PreAuthKey
 }
 var file_headscale_v1_node_proto_depIdxs = []int32{
-	22, // 0: headscale.v1.Node.user:type_name -> headscale.v1.User
-	23, // 1: headscale.v1.Node.last_seen:type_name -> google.protobuf.Timestamp
-	23, // 2: headscale.v1.Node.expiry:type_name -> google.protobuf.Timestamp
-	24, // 3: headscale.v1.Node.pre_auth_key:type_name -> headscale.v1.PreAuthKey
-	23, // 4: headscale.v1.Node.created_at:type_name -> google.protobuf.Timestamp
+	24, // 0: headscale.v1.Node.user:type_name -> headscale.v1.User
+	25, // 1: headscale.v1.Node.last_seen:type_name -> google.protobuf.Timestamp
+	25, // 2: headscale.v1.Node.expiry:type_name -> google.protobuf.Timestamp
+	26, // 3: headscale.v1.Node.pre_auth_key:type_name -> headscale.v1.PreAuthKey
+	25, // 4: headscale.v1.Node.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: headscale.v1.Node.register_method:type_name -> headscale.v1.RegisterMethod
 	1,  // 6: headscale.v1.RegisterNodeResponse.node:type_name -> headscale.v1.Node
 	1,  // 7: headscale.v1.GetNodeResponse.node:type_name -> headscale.v1.Node
@@ -1333,7 +1454,7 @@ func file_headscale_v1_node_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_headscale_v1_node_proto_rawDesc), len(file_headscale_v1_node_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
