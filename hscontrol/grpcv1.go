@@ -149,6 +149,133 @@ func (api headscaleV1APIServer) CreatePreAuthKey(
 	return &v1.CreatePreAuthKeyResponse{PreAuthKey: preAuthKey.Proto()}, nil
 }
 
+func (api headscaleV1APIServer) EnablePreAuthKeys(
+	ctx context.Context,
+	request *v1.PreAuthKeysRequest,
+) (*v1.PreAuthKeysResponse, error) {
+	log.Trace().
+		Interface("request.SguUuids", request.SguUuids).
+		Interface("request.ClientUuids", request.ClientUuids).
+		Msg("Enable PreAuthKeys")
+
+	if len(request.SguUuids) > 0 && len(request.ClientUuids) == 0 {
+		return api.EnablePreAuthKeysBySguUuid(ctx, request)
+	} else if len(request.SguUuids) == 0 && len(request.ClientUuids) > 0 {
+		return api.EnablePreAuthKeysByClientUuids(ctx, request)
+	} else {
+		return &v1.PreAuthKeysResponse{}, nil
+	}
+}
+
+func (api headscaleV1APIServer) EnablePreAuthKeysBySguUuid(
+	ctx context.Context,
+	request *v1.PreAuthKeysRequest,
+) (*v1.PreAuthKeysResponse, error) {
+	uuids := request.SguUuids
+
+	preAuthKeys, _ := api.h.db.GetPreAuthKeysBySguUuids(uuids)
+
+	api.h.db.EnablePreAuthKeys(preAuthKeys)
+
+	return &v1.PreAuthKeysResponse{}, nil
+}
+
+func (api headscaleV1APIServer) EnablePreAuthKeysByClientUuids(
+	ctx context.Context,
+	request *v1.PreAuthKeysRequest,
+) (*v1.PreAuthKeysResponse, error) {
+	clientUuids := request.ClientUuids
+
+	preAuthKeys, _ := api.h.db.GetPreAuthKeysByClientUuids(clientUuids)
+
+	api.h.db.EnablePreAuthKeys(preAuthKeys)
+
+	return &v1.PreAuthKeysResponse{}, nil
+}
+
+func (api headscaleV1APIServer) RemovePreAuthKeys(
+	ctx context.Context,
+	request *v1.PreAuthKeysRequest,
+) (*v1.PreAuthKeysResponse, error) {
+	log.Trace().
+		Interface("request.SguUuids", request.SguUuids).
+		Interface("request.ClientUuids", request.ClientUuids).
+		Msg("Remove PreAuthKeys")
+
+	if len(request.SguUuids) > 0 && len(request.ClientUuids) == 0 {
+		return api.RemovePreAuthKeysBySguUuid(ctx, request)
+	} else if len(request.SguUuids) == 0 && len(request.ClientUuids) > 0 {
+		return api.RemovePreAuthKeysByClientUuids(ctx, request)
+	} else {
+		return &v1.PreAuthKeysResponse{}, nil
+	}
+}
+
+func (api headscaleV1APIServer) RemovePreAuthKeysBySguUuid(
+	ctx context.Context,
+	request *v1.PreAuthKeysRequest,
+) (*v1.PreAuthKeysResponse, error) {
+	uuids := request.SguUuids
+
+	preAuthKeys, _ := api.h.db.GetPreAuthKeysBySguUuids(uuids)
+
+	api.h.db.DestroyPreAuthKeys(preAuthKeys)
+
+	return &v1.PreAuthKeysResponse{}, nil
+}
+
+func (api headscaleV1APIServer) RemovePreAuthKeysByClientUuids(
+	ctx context.Context,
+	request *v1.PreAuthKeysRequest,
+) (*v1.PreAuthKeysResponse, error) {
+	clientUuids := request.ClientUuids
+
+	preAuthKeys, _ := api.h.db.GetPreAuthKeysByClientUuids(clientUuids)
+
+	if len(preAuthKeys) > 0 {
+		api.h.db.DisablePreAuthKeys(preAuthKeys)
+
+		var authKeyIdList []uint64
+		for _, key := range preAuthKeys {
+			authKeyIdList = append(authKeyIdList, key.ID)
+		}
+		nodes, _ := api.h.db.GetNodesByAuthKeyIds(authKeyIdList)
+
+		// for _, node := range nodes {
+		// 	expireRequest := &v1.ExpireNodeRequest{NodeId: uint64(node.ID)}
+		// 	api.ExpireNode(ctx, expireRequest) //expire Nodes
+		// }
+		if len(nodes) > 0 {
+			var nodeIds []uint64
+			for _, node := range nodes {
+				nodeIds = append(nodeIds, uint64(node.ID))
+			}
+			expireRequest := &v1.ExpireNodesRequest{
+				ClientUuids: clientUuids,
+			}
+			api.ExpireNodes(ctx, expireRequest)
+		}
+
+		api.h.db.DestroyPreAuthKeys(preAuthKeys)
+
+		go func() {
+			time.Sleep(10 * time.Second)
+			for _, node := range nodes {
+				deleteRequest := &v1.DeleteNodeRequest{NodeId: uint64(node.ID)}
+				api.DeleteNode(ctx, deleteRequest) //delete Nodes
+			}
+		}()
+
+		log.Info().
+			Strs("clientUuids", clientUuids).
+			Interface("authKeyIdList", authKeyIdList).
+			Interface("nodes", nodes).
+			Msg("Remove PreAuthKeys by Client Uuids")
+	}
+
+	return &v1.PreAuthKeysResponse{}, nil
+}
+
 func (api headscaleV1APIServer) ExpirePreAuthKey(
 	ctx context.Context,
 	request *v1.ExpirePreAuthKeyRequest,
@@ -193,7 +320,6 @@ func (api headscaleV1APIServer) LockPreAuthKeyTagLock(
 	ctx context.Context,
 	request *v1.PreAuthKeyTagLockRequest,
 ) (*v1.PreAuthKeyTagLockResponse, error) {
-
 	log.Trace().
 		Interface("request.SguUuid", request.SguUuid).
 		Msg("Lock PreAuthKeyTagLock")
@@ -205,7 +331,6 @@ func (api headscaleV1APIServer) UnlockPreAuthKeyTagLock(
 	ctx context.Context,
 	request *v1.PreAuthKeyTagLockRequest,
 ) (*v1.PreAuthKeyTagLockResponse, error) {
-
 	log.Trace().
 		Interface("request.SguUuid", request.SguUuid).
 		Msg("Unlock PreAuthKeyTagLock")
@@ -392,7 +517,11 @@ func (api headscaleV1APIServer) ExpireNode(
 		node.ID)
 
 	ctx = types.NotifyCtx(ctx, "cli-expirenode-peers", node.Hostname)
-	api.h.nodeNotifier.NotifyWithIgnore(ctx, types.StateUpdateExpire(node.ID, now), node.ID)
+	api.h.nodeNotifier.NotifyWithIgnore(
+		ctx,
+		types.StateUpdateExpire(node.ID, now),
+		node.ID,
+	)
 
 	log.Trace().
 		Str("node", node.Hostname).
@@ -400,6 +529,104 @@ func (api headscaleV1APIServer) ExpireNode(
 		Msg("node expired")
 
 	return &v1.ExpireNodeResponse{Node: node.Proto()}, nil
+}
+
+func (api headscaleV1APIServer) ExpireNodes(
+	ctx context.Context,
+	request *v1.ExpireNodesRequest,
+) (*v1.ExpireNodesResponse, error) {
+	log.Trace().
+		Interface("request.RecoveryInterval", request.RecoveryInterval).
+		Interface("request.SguUuids", request.SguUuids).
+		Interface("request.ClientUuids", request.ClientUuids).
+		Msg("Expire Nodes expired")
+
+	if len(request.SguUuids) > 0 && len(request.ClientUuids) == 0 {
+		return api.ExpireNodesBySguUuid(ctx, request)
+	} else if len(request.SguUuids) == 0 && len(request.ClientUuids) > 0 {
+		return api.ExpireNodesByClientUuids(ctx, request)
+	} else {
+		return &v1.ExpireNodesResponse{}, nil
+	}
+}
+
+func (api headscaleV1APIServer) ExpireNodesBySguUuid(
+	ctx context.Context,
+	request *v1.ExpireNodesRequest,
+) (*v1.ExpireNodesResponse, error) {
+	recoveryInterval := request.RecoveryInterval
+	uuids := request.SguUuids
+
+	preAuthKeys, _ := api.h.db.GetPreAuthKeysBySguUuids(uuids)
+
+	if len(preAuthKeys) > 0 {
+		api.h.db.DisablePreAuthKeys(preAuthKeys)
+
+		var authKeyIdList []uint64
+		for _, key := range preAuthKeys {
+			authKeyIdList = append(authKeyIdList, key.ID)
+		}
+		nodes, _ := api.h.db.GetNodesByAuthKeyIds(authKeyIdList)
+
+		//api.h.db.ExpireNode(nodes)
+		for _, node := range nodes {
+			expireRequest := &v1.ExpireNodeRequest{NodeId: uint64(node.ID)}
+			api.ExpireNode(ctx, expireRequest) //expire Nodes
+		}
+
+		log.Info().
+			Strs("Super Group User Uuid", uuids).
+			Interface("authKeyIdList", authKeyIdList).
+			Interface("nodes", nodes).
+			Msg("Expire Node expired by SGU Uuid")
+
+		if recoveryInterval > 0 {
+			go func() {
+				time.Sleep(time.Duration(recoveryInterval) * time.Second)
+				api.h.db.EnablePreAuthKeys(preAuthKeys)
+			}()
+		}
+	}
+	return &v1.ExpireNodesResponse{SguUuids: uuids}, nil
+}
+
+func (api headscaleV1APIServer) ExpireNodesByClientUuids(
+	ctx context.Context,
+	request *v1.ExpireNodesRequest,
+) (*v1.ExpireNodesResponse, error) {
+	recoveryInterval := request.RecoveryInterval
+	clientUuids := request.ClientUuids
+
+	preAuthKeys, _ := api.h.db.GetPreAuthKeysByClientUuids(clientUuids)
+
+	if len(preAuthKeys) > 0 {
+		api.h.db.DisablePreAuthKeys(preAuthKeys)
+
+		var authKeyIdList []uint64
+		for _, key := range preAuthKeys {
+			authKeyIdList = append(authKeyIdList, key.ID)
+		}
+		nodes, _ := api.h.db.GetNodesByAuthKeyIds(authKeyIdList)
+
+		//api.h.db.ExpireNode(nodes)
+		for _, node := range nodes {
+			expireRequest := &v1.ExpireNodeRequest{NodeId: uint64(node.ID)}
+			api.ExpireNode(ctx, expireRequest) //expire Nodes
+		}
+
+		log.Info().
+			Strs("clientUuids", clientUuids).
+			Interface("authKeyIdList", authKeyIdList).
+			Interface("nodes", nodes).
+			Msg("Expire Node expired by Client Uuids")
+		if recoveryInterval > 0 {
+			go func() {
+				time.Sleep(time.Duration(recoveryInterval) * time.Second)
+				api.h.db.EnablePreAuthKeys(preAuthKeys)
+			}()
+		}
+	}
+	return &v1.ExpireNodesResponse{ClientUuids: clientUuids}, nil
 }
 
 func (api headscaleV1APIServer) RenameNode(
@@ -578,7 +805,11 @@ func (api headscaleV1APIServer) DisableRoute(
 	request *v1.DisableRouteRequest,
 ) (*v1.DisableRouteResponse, error) {
 	update, err := db.Write(api.h.db.DB, func(tx *gorm.DB) ([]types.NodeID, error) {
-		return db.DisableRoute(tx, request.GetRouteId(), api.h.nodeNotifier.LikelyConnectedMap())
+		return db.DisableRoute(
+			tx,
+			request.GetRouteId(),
+			api.h.nodeNotifier.LikelyConnectedMap(),
+		)
 	})
 	if err != nil {
 		return nil, err
@@ -751,7 +982,10 @@ func (api headscaleV1APIServer) GetPolicy(
 		return &v1.GetPolicyResponse{Policy: string(b)}, nil
 	}
 
-	return nil, fmt.Errorf("no supported policy mode found in configuration, policy.mode: %q", api.h.cfg.Policy.Mode)
+	return nil, fmt.Errorf(
+		"no supported policy mode found in configuration, policy.mode: %q",
+		api.h.cfg.Policy.Mode,
+	)
 }
 
 func (api headscaleV1APIServer) SetPolicy(
@@ -776,7 +1010,10 @@ func (api headscaleV1APIServer) SetPolicy(
 	// configurations.
 	nodes, err := api.h.db.ListNodes()
 	if err != nil {
-		return nil, fmt.Errorf("loading nodes from database to validate policy: %w", err)
+		return nil, fmt.Errorf(
+			"loading nodes from database to validate policy: %w",
+			err,
+		)
 	}
 
 	_, err = pol.CompileFilterRules(nodes)
@@ -838,7 +1075,6 @@ func copyACLConfig(dst, src string) error {
 // It stores the pending ACL config within the directory of the ACL config
 // with the file name .acl.json.
 func getPendingACLConfig(h *Headscale) (*policy.ACLPolicy, error) {
-
 	inUsedPolicyPath := util.AbsolutePathFromConfigPath(h.cfg.Policy.Path)
 	pendingPolicyPath := filepath.Dir(inUsedPolicyPath) + "/.acl.json"
 	if _, err := os.Stat(pendingPolicyPath); errors.Is(err, os.ErrNotExist) {
@@ -895,7 +1131,10 @@ func (api headscaleV1APIServer) ACLCreateGroup(
 	request *v1.ACLGroupRequest,
 ) (*v1.ACLGroupResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -927,7 +1166,10 @@ func (api headscaleV1APIServer) ACLGroupAddUser(
 	request *v1.ACLGroupUserRequest,
 ) (*v1.ACLGroupUserResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 
 	aclPolicy, err := getPendingACLConfig(api.h)
@@ -965,7 +1207,10 @@ func (api headscaleV1APIServer) ACLGroupRemoveUser(
 	request *v1.ACLGroupUserRequest,
 ) (*v1.ACLGroupUserResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 
 	aclPolicy, err := getPendingACLConfig(api.h)
@@ -1005,7 +1250,10 @@ func (api headscaleV1APIServer) ACLRemoveGroup(
 	request *v1.ACLGroupRequest,
 ) (*v1.ACLGroupResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1037,7 +1285,10 @@ func (api headscaleV1APIServer) ACLBindHostname(
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1082,7 +1333,10 @@ func (api headscaleV1APIServer) ACLUpdateHostname(
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1127,7 +1381,10 @@ func (api headscaleV1APIServer) ACLRemoveHostname(
 	request *v1.ACLHostnameRequest,
 ) (*v1.ACLHostnameResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1160,7 +1417,10 @@ func (api headscaleV1APIServer) ACLCreateTag(
 	request *v1.ACLTagRequest,
 ) (*v1.ACLTagResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1192,7 +1452,10 @@ func (api headscaleV1APIServer) ACLRemoveTag(
 	request *v1.ACLTagRequest,
 ) (*v1.ACLTagResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1308,7 +1571,10 @@ func (api headscaleV1APIServer) ACLCreateRule(
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1327,7 +1593,10 @@ func (api headscaleV1APIServer) ACLCreateRule(
 	}
 
 	if newRule.Destinations == nil || len(newRule.Destinations) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "Destination should not be empty")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"Destination should not be empty",
+		)
 	}
 
 	if idx := getACLRuleIdx(aclPolicy.ACLs, newRule); idx != -1 {
@@ -1348,7 +1617,10 @@ func (api headscaleV1APIServer) ACLRemoveRule(
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1381,7 +1653,10 @@ func (api headscaleV1APIServer) ACLForceRemoveRule(
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1422,6 +1697,7 @@ func includeString(source []string, target []string) []string {
 	}
 	return source
 }
+
 func excludeString(source []string, target []string) []string {
 	targetMap := make(map[string]bool)
 	for _, t := range target {
@@ -1442,7 +1718,10 @@ func (api headscaleV1APIServer) ACLRuleInclude(
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1459,10 +1738,16 @@ func (api headscaleV1APIServer) ACLRuleInclude(
 	idx := getACLRuleIdxBySrc(aclPolicy.ACLs, targetRule)
 	if idx == -1 {
 		if targetRule.Sources == nil || len(targetRule.Sources) == 0 {
-			return nil, status.Error(codes.InvalidArgument, "Source should not be empty")
+			return nil, status.Error(
+				codes.InvalidArgument,
+				"Source should not be empty",
+			)
 		}
 		if targetRule.Destinations == nil || len(targetRule.Destinations) == 0 {
-			return nil, status.Error(codes.InvalidArgument, "Destination should not be empty")
+			return nil, status.Error(
+				codes.InvalidArgument,
+				"Destination should not be empty",
+			)
 		}
 		aclPolicy.ACLs = append(aclPolicy.ACLs, targetRule)
 	} else {
@@ -1481,7 +1766,10 @@ func (api headscaleV1APIServer) ACLRuleExclude(
 	request *v1.ACLRuleRequest,
 ) (*v1.ACLRuleResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	aclPolicy, err := getPendingACLConfig(api.h)
 	if err != nil {
@@ -1503,7 +1791,10 @@ func (api headscaleV1APIServer) ACLRuleExclude(
 			return nil, status.Error(codes.InvalidArgument, "Rule does not exists")
 		}
 
-		newDests = excludeString(aclPolicy.ACLs[idx].Destinations, targetRule.Destinations)
+		newDests = excludeString(
+			aclPolicy.ACLs[idx].Destinations,
+			targetRule.Destinations,
+		)
 
 		if len(newDests) == 0 {
 			aclPolicy.ACLs = slices.Delete(aclPolicy.ACLs, idx, idx+1)
@@ -1547,7 +1838,10 @@ func (api headscaleV1APIServer) ACLCtrl(
 	request *v1.ACLCtrlRequest,
 ) (*v1.ACLCtrlResponse, error) {
 	if api.h.cfg.Policy.Mode != types.PolicyModeFile {
-		return nil, status.Error(codes.FailedPrecondition, "ACLAPIs only supported in file mode")
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			"ACLAPIs only supported in file mode",
+		)
 	}
 	action := request.GetAction()
 

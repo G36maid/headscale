@@ -150,7 +150,12 @@ var registerNodeCmd = &cobra.Command{
 
 		SuccessOutput(
 			response.GetNode(),
-			fmt.Sprintf("Node %s registered", response.GetNode().GetGivenName()), output)
+			fmt.Sprintf(
+				"Node %s registered",
+				response.GetNode().GetGivenName(),
+			),
+			output,
+		)
 	},
 }
 
@@ -494,7 +499,10 @@ be assigned to nodes.`,
 			defer cancel()
 			defer conn.Close()
 
-			changes, err := client.BackfillNodeIPs(ctx, &v1.BackfillNodeIPsRequest{Confirmed: confirm})
+			changes, err := client.BackfillNodeIPs(
+				ctx,
+				&v1.BackfillNodeIPsRequest{Confirmed: confirm},
+			)
 			if err != nil {
 				ErrorOutput(
 					err,
