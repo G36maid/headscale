@@ -1,55 +1,63 @@
 syntax = "proto3";
 package headscale.v1;
-option go_package = "github.com/juanfont/headscale/gen/go/v1";
+option  go_package = "github.com/juanfont/headscale/gen/go/v1";
 
 import "google/protobuf/timestamp.proto";
 
-message SetPolicyRequest { string policy = 1; }
+message SetPolicyRequest {
+    string policy = 1;
+}
 
 message SetPolicyResponse {
-  string policy = 1;
-  google.protobuf.Timestamp updated_at = 2;
+    string                    policy     = 1;
+    google.protobuf.Timestamp updated_at = 2;
 }
 
 message GetPolicyRequest {}
 
 message GetPolicyResponse {
-  string policy = 1;
-  google.protobuf.Timestamp updated_at = 2;
+    string                    policy     = 1;
+    google.protobuf.Timestamp updated_at = 2;
 }
 
-message ACLGroupRequest { string group_name = 1; }
+message ACLGroupRequest {
+    string group_name = 1;
+}
 
 message ACLGroupResponse {}
 
 message ACLGroupUserRequest {
-  string group_name = 1;
-  string username = 2;
+    string group_name = 1;
+    string username   = 2;
 }
 
 message ACLGroupUserResponse {}
 
 message ACLHostnameRequest {
-  string hostname = 1;
-  string type = 2;
-  string address = 3;
+    string hostname = 1;
+    string type     = 2;
+    string address  = 3;
 }
 
 message ACLHostnameResponse {}
 
 message ACLRemoveHostnameResponse {}
 
-message ACLTagRequest { string tag = 1; }
+message ACLTagRequest {
+    string tag = 1;
+}
 
 message ACLTagResponse {}
 
 message ACLRuleRequest {
-  repeated string src = 1;
-  repeated string dst = 2;
+    repeated string src = 1;
+    repeated string dst = 2;
 }
 
 message ACLRuleResponse {}
 
-message ACLCtrlRequest { string action = 1; }
+message ACLCtrlRequest {
+    string action = 1;
+}
 
 message ACLCtrlResponse {}
