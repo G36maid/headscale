@@ -565,7 +565,7 @@ func (m *mapSession) handleEndpointUpdate() {
 	m.w.WriteHeader(http.StatusOK)
 	mapResponseEndpointUpdates.WithLabelValues("ok").Inc()
 
-	return
+	//return
 }
 
 // handleSaveNode saves node updates in the maprequest _streaming_
@@ -657,7 +657,7 @@ func (m *mapSession) handleReadOnlyRequest() {
 	m.w.WriteHeader(http.StatusOK)
 	mapResponseReadOnly.WithLabelValues("ok").Inc()
 
-	return
+	//return
 }
 
 func logTracePeerChange(hostname string, hostinfoChange bool, change *tailcfg.PeerChange) {

@@ -1588,11 +1588,11 @@ func (api headscaleV1APIServer) ACLCreateRule(
 		Destinations: request.GetDst(),
 	}
 
-	if newRule.Sources == nil || len(newRule.Sources) == 0 {
+	if len(newRule.Sources) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "Source should not be empty")
 	}
 
-	if newRule.Destinations == nil || len(newRule.Destinations) == 0 {
+	if len(newRule.Destinations) == 0 {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			"Destination should not be empty",
@@ -1737,13 +1737,13 @@ func (api headscaleV1APIServer) ACLRuleInclude(
 
 	idx := getACLRuleIdxBySrc(aclPolicy.ACLs, targetRule)
 	if idx == -1 {
-		if targetRule.Sources == nil || len(targetRule.Sources) == 0 {
+		if len(targetRule.Sources) == 0 {
 			return nil, status.Error(
 				codes.InvalidArgument,
 				"Source should not be empty",
 			)
 		}
-		if targetRule.Destinations == nil || len(targetRule.Destinations) == 0 {
+		if len(targetRule.Destinations) == 0 {
 			return nil, status.Error(
 				codes.InvalidArgument,
 				"Destination should not be empty",
