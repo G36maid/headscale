@@ -541,6 +541,72 @@ func RegisterNodeFromAuthCallback(
 	return nil, ErrNodeNotFoundRegistrationCache
 }
 
+// RegisterNodeWithIPsFromAuth registers a node from auth callback with IP allocation
+func RegisterNodeWithIPsFromAuth(
+	tx *gorm.DB,
+	cache *cache.Cache,
+	ipAlloc *IPAllocator,
+	mkey key.MachinePublic,
+	userName string,
+	nodeExpiry *time.Time,
+	registrationMethod string,
+) (*types.Node, error) {
+	log.Debug().
+		Str("machine_key", mkey.ShortString()).
+		Str("userName", userName).
+		Str("registrationMethod", registrationMethod).
+		Str("expiresAt", fmt.Sprintf("%v", nodeExpiry)).
+		Msg("Registering node from API/CLI or auth callback with IP allocation")
+
+	if nodeInterface, ok := cache.Get(mkey.String()); ok {
+		if registrationNode, ok := nodeInterface.(types.Node); ok {
+			user, err := GetUser(tx, userName)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"failed to find user in register node from auth callback, %w",
+					err,
+				)
+			}
+
+			// Registration of expired node with different user
+			if registrationNode.ID != 0 &&
+				registrationNode.UserID != user.ID {
+				return nil, ErrDifferentRegisteredUser
+			}
+
+			registrationNode.UserID = user.ID
+			registrationNode.User = *user
+			registrationNode.RegisterMethod = registrationMethod
+
+			if nodeExpiry != nil {
+				registrationNode.Expiry = nodeExpiry
+			}
+
+			// Allocate IPs here based on tags
+			ipv4, ipv6, err := ipAlloc.NextWithTags(&HSDatabase{DB: tx.Session(&gorm.Session{})}, registrationNode.ForcedTags)
+			if err != nil {
+				return nil, fmt.Errorf("failed to allocate IPs: %w", err)
+			}
+
+			node, err := RegisterNode(
+				tx,
+				registrationNode,
+				ipv4, ipv6,
+			)
+
+			if err == nil {
+				cache.Delete(mkey.String())
+			}
+
+			return node, err
+		} else {
+			return nil, ErrCouldNotConvertNodeInterface
+		}
+	}
+
+	return nil, ErrNodeNotFoundRegistrationCache
+}
+
 func (hsdb *HSDatabase) RegisterNode(
 	node types.Node,
 	ipv4 *netip.Addr,

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"net/netip"
+	"strings"
 	"sync"
 
 	"github.com/juanfont/headscale/hscontrol/types"
@@ -204,6 +205,33 @@ func (i *IPAllocator) Next(db *HSDatabase) (*netip.Addr, *netip.Addr, error) {
 	}
 
 	return ret4, ret6, nil
+}
+
+// NextWithTags handles both forced IP assignment from tags and normal allocation
+func (i *IPAllocator) NextWithTags(db *HSDatabase, forcedTags []string) (*netip.Addr, *netip.Addr, error) {
+	// Check for forced IP in tags first
+	for _, tag := range forcedTags {
+		if vpnIpTag, found := strings.CutPrefix(tag, "tag:vpnip_"); found {
+			addr, err := netip.ParseAddr(vpnIpTag)
+			if err != nil {
+				return nil, nil, fmt.Errorf("invalid IP in vpnip tag %s: %w", vpnIpTag, err)
+			}
+
+			if !addr.Is4() {
+				return nil, nil, fmt.Errorf("only IPv4 addresses are supported in vpnip tags, got: %s", addr.String())
+			}
+
+			log.Info().
+				Str("forced_ipv4", addr.String()).
+				Msg("Using forced IPv4 from tag")
+
+			// Return forced IPv4, no IPv6 (since IPv4-only)
+			return &addr, nil, nil
+		}
+	}
+
+	// No forced IP found, fallback to normal allocation
+	return i.Next(db)
 }
 
 var ErrCouldNotAllocateIP = errors.New("failed to allocate IP")

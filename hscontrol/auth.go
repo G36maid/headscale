@@ -502,7 +502,7 @@ func (h *Headscale) handleAuthKey(
 			ForcedTags:     pak.Proto().GetAclTags(),
 		}
 
-		ipv4, ipv6, err := h.ipAlloc.Next(h.db)
+		ipv4, ipv6, err := h.ipAlloc.NextWithTags(h.db, nodeToRegister.ForcedTags)
 		if err != nil {
 			log.Error().
 				Caller().

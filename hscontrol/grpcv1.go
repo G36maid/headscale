@@ -353,20 +353,15 @@ func (api headscaleV1APIServer) RegisterNode(
 		return nil, err
 	}
 
-	ipv4, ipv6, err := api.h.ipAlloc.Next(api.h.db)
-	if err != nil {
-		return nil, err
-	}
-
 	node, err := db.Write(api.h.db.DB, func(tx *gorm.DB) (*types.Node, error) {
-		return db.RegisterNodeFromAuthCallback(
+		return db.RegisterNodeWithIPsFromAuth(
 			tx,
 			api.h.registrationCache,
+			api.h.ipAlloc,
 			mkey,
 			request.GetUser(),
 			nil,
 			util.RegisterMethodCLI,
-			ipv4, ipv6,
 		)
 	})
 	if err != nil {
