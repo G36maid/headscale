@@ -587,7 +587,6 @@ func RegisterNode(
 		return &node, nil
 	}
 
-	// Check for forced IP assignment via tags
 	var vpnIpTags string
 	for _, tag := range node.ForcedTags {
 		if strings.Contains(tag, "vpnip_") {
@@ -606,8 +605,9 @@ func RegisterNode(
 		// Determine if it's IPv4 or IPv6 and assign accordingly
 		if addr.Is4() {
 			node.IPv4 = &addr
-		} else if addr.Is6() {
-			node.IPv6 = &addr
+			node.IPv6 = nil
+		} else {
+			return nil, fmt.Errorf("only IPv4 addresses are supported in vpnip tags, got IPv6: %s", addr.String())
 		}
 
 		log.Info().
