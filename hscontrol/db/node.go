@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/netip"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -586,8 +587,38 @@ func RegisterNode(
 		return &node, nil
 	}
 
-	node.IPv4 = ipv4
-	node.IPv6 = ipv6
+	// Check for forced IP assignment via tags
+	var vpnIpTags string
+	for _, tag := range node.ForcedTags {
+		if strings.Contains(tag, "vpnip_") {
+			vpnIpTags = strings.TrimPrefix(tag, "tag:vpnip_")
+			break
+		}
+	}
+
+	if len(vpnIpTags) > 0 {
+		// Forced IP from tag
+		addr, err := netip.ParseAddr(vpnIpTags)
+		if err != nil {
+			return nil, fmt.Errorf("invalid IP in vpnip tag %s: %w", vpnIpTags, err)
+		}
+
+		// Determine if it's IPv4 or IPv6 and assign accordingly
+		if addr.Is4() {
+			node.IPv4 = &addr
+		} else if addr.Is6() {
+			node.IPv6 = &addr
+		}
+
+		log.Info().
+			Str("node", node.Hostname).
+			Str("forced_ip", addr.String()).
+			Msg("Assigned forced IP from tag")
+	} else {
+		// Normal IP allocation (use the passed parameters)
+		node.IPv4 = ipv4
+		node.IPv6 = ipv6
+	}
 
 	if node.GivenName == "" {
 		givenName, err := ensureUniqueGivenName(tx, node.Hostname)
