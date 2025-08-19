@@ -196,6 +196,7 @@ func (pol *ACLPolicy) CompileFilterRules(
 			expanded, err := pol.ExpandAlias(
 				nodes,
 				alias,
+				false,
 			)
 			if err != nil {
 				return nil, err
@@ -310,7 +311,7 @@ func (pol *ACLPolicy) CompileSSHPolicy(
 	for index, sshACL := range pol.SSHs {
 		var dest netipx.IPSetBuilder
 		for _, src := range sshACL.Destinations {
-			expanded, err := pol.ExpandAlias(append(peers, node), src)
+			expanded, err := pol.ExpandAlias(append(peers, node), src, false)
 			if err != nil {
 				return nil, err
 			}
@@ -362,6 +363,7 @@ func (pol *ACLPolicy) CompileSSHPolicy(
 				expandedSrcs, err := pol.ExpandAlias(
 					peers,
 					rawSrc,
+					true,
 				)
 				if err != nil {
 					return nil, fmt.Errorf("parsing SSH policy, expanding alias, index: %d->%d: %w", index, innerIndex, err)
@@ -512,7 +514,7 @@ func (pol *ACLPolicy) expandSource(
 	src string,
 	nodes types.Nodes,
 ) ([]string, error) {
-	ipSet, err := pol.ExpandAlias(nodes, src)
+	ipSet, err := pol.ExpandAlias(nodes, src, true)
 	if err != nil {
 		return []string{}, err
 	}
@@ -537,6 +539,7 @@ func (pol *ACLPolicy) expandSource(
 func (pol *ACLPolicy) ExpandAlias(
 	nodes types.Nodes,
 	alias string,
+	isSource bool,
 ) (*netipx.IPSet, error) {
 	if isWildcard(alias) {
 		return util.ParseIPSet("*", nil)
@@ -555,7 +558,7 @@ func (pol *ACLPolicy) ExpandAlias(
 
 	// if alias is a tag
 	if isTag(alias) {
-		return pol.expandIPsFromTag(alias, nodes)
+		return pol.expandIPsFromTag(alias, nodes, isSource)
 	}
 
 	if isAutoGroup(alias) {
@@ -572,7 +575,7 @@ func (pol *ACLPolicy) ExpandAlias(
 	if h, ok := pol.Hosts[alias]; ok {
 		log.Trace().Str("host", h.String()).Msg("ExpandAlias got hosts entry")
 
-		return pol.ExpandAlias(nodes, h.String())
+		return pol.ExpandAlias(nodes, h.String(), isSource)
 	}
 
 	// if alias is an IP
@@ -774,6 +777,7 @@ func (pol *ACLPolicy) expandIPsFromGroup(
 func (pol *ACLPolicy) expandIPsFromTag(
 	alias string,
 	nodes types.Nodes,
+	isSource bool,
 ) (*netipx.IPSet, error) {
 	var build netipx.IPSetBuilder
 
@@ -781,6 +785,22 @@ func (pol *ACLPolicy) expandIPsFromTag(
 	for _, node := range nodes {
 		if util.StringOrPrefixListContains(node.ForcedTags, alias) {
 			node.AppendToIPSet(&build)
+			log.Trace().
+				Str("alias", alias).
+				Interface("node IP Addresses", node.IPv4).
+				Msg("expandIPsFromTag")
+
+			// Add advertised routes for destinations only
+			if !isSource && node.Hostinfo != nil {
+				for _, routeIP := range node.Hostinfo.RoutableIPs {
+					build.AddPrefix(routeIP)
+					log.Trace().
+						Interface("node", node.Hostname).
+						Interface("route orig", routeIP).
+						Interface("route addr()", routeIP.Addr()).
+						Msg("expandIPsFromTag - adding advertised route for destination")
+				}
+			}
 		}
 	}
 
