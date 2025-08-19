@@ -341,7 +341,7 @@ func TestParsing(t *testing.T) {
 			],
 		},
 	],
-}			
+}
 `,
 			want: []tailcfg.FilterRule{
 				{
@@ -1386,6 +1386,7 @@ func Test_expandAlias(t *testing.T) {
 			got, err := test.field.pol.ExpandAlias(
 				test.args.nodes,
 				test.args.alias,
+				false,
 			)
 			if (err != nil) != test.wantErr {
 				t.Errorf("expandAlias() error = %v, wantErr %v", err, test.wantErr)
