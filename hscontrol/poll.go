@@ -249,7 +249,8 @@ func (m *mapSession) serveLongPoll() {
 	m.keepAliveTicker = time.NewTicker(m.keepAlive)
 
 	m.h.nodeNotifier.AddNode(m.node.ID, m.ch)
-	go m.h.updateNodeOnlineStatus(true, m.node)
+	//go m.h.updateNodeOnlineStatus(true, m.node)
+	m.h.updateNodeOnlineStatus(true, m.node)
 
 	m.infof("node has connected, mapSession: %p, chan: %p", m, m.ch)
 
