@@ -517,6 +517,16 @@ func databaseConfig() DatabaseConfig {
 			Msgf("invalid database type %q, must be sqlite, sqlite3 or postgres", type_)
 	}
 
+	// Apply environment variable expansion to database configuration
+	sqlitePath := os.ExpandEnv(viper.GetString("database.sqlite.path"))
+
+	// Postgres configuration with environment variable expansion
+	postgresHost := os.ExpandEnv(viper.GetString("database.postgres.host"))
+	postgresName := os.ExpandEnv(viper.GetString("database.postgres.name"))
+	postgresUser := os.ExpandEnv(viper.GetString("database.postgres.user"))
+	postgresPass := os.ExpandEnv(viper.GetString("database.postgres.pass"))
+	postgresSsl := os.ExpandEnv(viper.GetString("database.postgres.ssl"))
+
 	return DatabaseConfig{
 		Type:  type_,
 		Debug: debug,
@@ -528,18 +538,16 @@ func databaseConfig() DatabaseConfig {
 			PrepareStmt:           prepareStmt,
 		},
 		Sqlite: SqliteConfig{
-			Path: util.AbsolutePathFromConfigPath(
-				viper.GetString("database.sqlite.path"),
-			),
+			Path:          util.AbsolutePathFromConfigPath(sqlitePath),
 			WriteAheadLog: viper.GetBool("database.sqlite.write_ahead_log"),
 		},
 		Postgres: PostgresConfig{
-			Host:               viper.GetString("database.postgres.host"),
+			Host:               postgresHost,
 			Port:               viper.GetInt("database.postgres.port"),
-			Name:               viper.GetString("database.postgres.name"),
-			User:               viper.GetString("database.postgres.user"),
-			Pass:               viper.GetString("database.postgres.pass"),
-			Ssl:                viper.GetString("database.postgres.ssl"),
+			Name:               postgresName,
+			User:               postgresUser,
+			Pass:               postgresPass,
+			Ssl:                postgresSsl,
 			MaxOpenConnections: viper.GetInt("database.postgres.max_open_conns"),
 			MaxIdleConnections: viper.GetInt("database.postgres.max_idle_conns"),
 			ConnMaxIdleTimeSecs: viper.GetInt(
