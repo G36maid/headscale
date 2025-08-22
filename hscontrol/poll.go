@@ -249,8 +249,8 @@ func (m *mapSession) serveLongPoll() {
 	m.keepAliveTicker = time.NewTicker(m.keepAlive)
 
 	m.h.nodeNotifier.AddNode(m.node.ID, m.ch)
-	//go m.h.updateNodeOnlineStatus(true, m.node)
-	m.h.updateNodeOnlineStatus(true, m.node)
+	go m.h.updateNodeOnlineStatus(true, m.node)
+	//m.h.updateNodeOnlineStatus(true, m.node)
 
 	m.infof("node has connected, mapSession: %p, chan: %p", m, m.ch)
 
@@ -544,7 +544,7 @@ func (m *mapSession) handleEndpointUpdate() {
 			},
 			m.node.ID)
 	}
-
+	/* deleted route restore here
 	if err := m.h.db.DB.Save(m.node).Error; err != nil {
 		m.errf(err, "Failed to persist/update node in the database")
 		http.Error(m.w, "", http.StatusInternalServerError)
@@ -552,7 +552,7 @@ func (m *mapSession) handleEndpointUpdate() {
 
 		return
 	}
-
+	*/
 	ctx := types.NotifyCtx(context.Background(), "poll-nodeupdate-peers-patch", m.node.Hostname)
 	m.h.nodeNotifier.NotifyWithIgnore(
 		ctx,
@@ -618,10 +618,11 @@ func (m *mapSession) handleSaveNode() error {
 		}
 	}
 
+	/* deleted route restore here
 	if err := m.h.db.DB.Save(m.node).Error; err != nil {
 		return err
 	}
-
+	*/
 	ctx := types.NotifyCtx(context.Background(), "pre-68-update-while-stream", m.node.Hostname)
 	m.h.nodeNotifier.NotifyWithIgnore(
 		ctx,
