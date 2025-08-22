@@ -767,9 +767,8 @@ func (h *Headscale) handleNodeKeyRefresh(
 		Str("node", node.Hostname).
 		Msg("We have the OldNodeKey in the database. This is a key refresh")
 
-	err := h.db.Write(func(tx *gorm.DB) error {
-		return db.NodeSetNodeKey(tx, &node, registerRequest.NodeKey)
-	})
+	err := h.db.NodeSetNodeKey(&node, registerRequest.NodeKey)
+
 	if err != nil {
 		log.Error().
 			Caller().
