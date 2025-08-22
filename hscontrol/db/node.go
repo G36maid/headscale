@@ -286,44 +286,6 @@ func GetNodeByAnyKeyAndAuthKeyAndHostname(
 	return nil, false, err
 }
 
-/*
-// GetMachineByPreAuthKeyAndHostname finds a Machine by its PreAuthKey And Hostname, and returns the Machine struct.
-func (h *Headscale) GetMachineByAuthKeyAndHostname(
-	authKey string, hostname string,
-) (*Machine, error) {
-	machine := Machine{}
-
-	if result := h.db.Preload("AuthKey").Preload("AuthKey.User").Preload("User").First(&machine, "hostname = ? ", hostname); result.Error != nil {
-		return nil, result.Error
-	}
-
-	if machine.AuthKey.Key == authKey {
-
-		return &machine, nil
-	} else {
-
-		return nil, gorm.ErrRecordNotFound
-	}
-}
-
-func (h *Headscale) GetMachineByAnyKeyAndAuthKeyAndHostname(
-	machineKey key.MachinePublic, nodeKey key.NodePublic, oldNodeKey key.NodePublic, authKey string, hostname string,
-) (*Machine, bool, error) {
-	machine, err := h.GetMachineByAnyKey(machineKey, nodeKey, oldNodeKey)
-	if err == nil {
-		return machine, false, nil
-	}
-
-	// Fallback to authKey + hostname
-	machine, err = h.GetMachineByAuthKeyAndHostname(authKey, hostname)
-	if err == nil {
-		return machine, true, nil
-	}
-
-	return nil, false, err
-}
-*/
-
 func (hsdb *HSDatabase) SetTags(
 	nodeID types.NodeID,
 	tags []string,
@@ -641,11 +603,19 @@ func RegisterNode(
 	return &node, nil
 }
 
+func (hsdb *HSDatabase) NodeSetNodeKey(
+	node *types.Node,
+	nodeKey key.NodePublic,
+) error {
+	return hsdb.Write(func(tx *gorm.DB) error {
+		return NodeSetNodeKey(tx, node, nodeKey)
+	})
+}
+
 // NodeSetNodeKey sets the node key of a node and saves it to the database.
 func NodeSetNodeKey(tx *gorm.DB, node *types.Node, nodeKey key.NodePublic) error {
-	return tx.Model(node).Updates(types.Node{
-		NodeKey: nodeKey,
-	}).Error
+	node.NodeKey = nodeKey
+	return tx.Save(node).Error
 }
 
 func (hsdb *HSDatabase) NodeSetMachineKey(
