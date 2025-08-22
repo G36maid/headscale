@@ -614,8 +614,9 @@ func (hsdb *HSDatabase) NodeSetNodeKey(
 
 // NodeSetNodeKey sets the node key of a node and saves it to the database.
 func NodeSetNodeKey(tx *gorm.DB, node *types.Node, nodeKey key.NodePublic) error {
-	node.NodeKey = nodeKey
-	return tx.Save(node).Error
+	return tx.Model(node).Updates(types.Node{
+		NodeKey: nodeKey,
+	}).Error
 }
 
 func (hsdb *HSDatabase) NodeSetMachineKey(
